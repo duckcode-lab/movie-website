@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-left">
+      <a href="/" class="logo">PhimHD</a>
+    </div>
+    <input type="text" placeholder="Tìm kiếm phim..." class="search-input">
+  </header>
+  <div id="dynamic-bg" class="hero-background"></div>
+  <div class="bg-overlay"></div>
+
+  <main class="container">
+    <h2 class="section-title">Danh Sách Phim Nổi Bật</h2>
+
+    <div class="movie-grid">
+      <% movies.forEach(movie => { %>
+        <div class="movie-card-wrapper" data-banner="<%= movie.bannerUrl || movie.posterUrl %>">
+          
+          <a href="/watch/<%= movie.id %>" class="movie-card-link">
+            <div class="movie-card">
+              <div class="poster-wrapper">
+                <img src="<%= movie.posterUrl %>" alt="<%= movie.title %>" loading="lazy">
+                <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
+              </div>
+              <div class="movie-info">
+                <h3 class="movie-title"><%= movie.title %></h3>
+              </div>
+            </div>
+          </a>
+
+          <div class="movie-tooltip">
+            <div class="tooltip-arrow"></div>
+            <h3 class="tooltip-title"><%= movie.title %></h3>
+            <% if (movie.englishTitle) { %>
+              <p class="tooltip-english-title"><%= movie.englishTitle %></p>
+            <% } %>
+            
+            <div class="tooltip-meta">
+              <span class="badge-fhd"><%= movie.quality || 'FHD' %></span>
+              <span class="meta-rating"><i class="fas fa-star"></i> <%= movie.rating %></span>
+              <span class="meta-episodes">
+                <i class="far fa-clock"></i> <%= movie.duration || (movie.episodes ? movie.episodes : 'N/A') %>
+              </span>
+              <span class="meta-year"><i class="far fa-calendar-alt"></i> <%= movie.year %></span>
+            </div>
+            
+            <p class="tooltip-description"><%= movie.description %></p>
+            
+            <div class="tooltip-details">
+              <% if (movie.director) { %>
+                <p><i class="fas fa-film"></i> <strong>Đạo diễn:</strong> <span><%= movie.director %></span></p>
+              <% } else if (movie.studio) { %>
+                <p><i class="fas fa-video"></i> <strong>Studio:</strong> <span><%= movie.studio %></span></p>
+              <% } %>
+              <% if (movie.country) { %>
+                <p><i class="fas fa-globe"></i> <strong>Quốc gia:</strong> <span><%= movie.country %></span></p>
+              <% } %>
+              <p><i class="fas fa-tags"></i> <strong>Thể loại:</strong> <span><%= movie.genre %></span></p>
+              <% if (movie.cast) { %>
+                <p><i class="fas fa-users"></i> <strong>Diễn viên:</strong> <span><%= movie.cast %></span></p>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  </main>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const bgElement = document.getElementById('dynamic-bg');
+      const movieCards = document.querySelectorAll('.movie-card-wrapper');
+
+      movieCards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+          const bannerUrl = card.getAttribute('data-banner');
+          if (bannerUrl) {
+            bgElement.style.backgroundImage = `url('${bannerUrl}')`;
+            bgElement.style.opacity = '1';
+          }
+        });
+        card.addEventListener('mouseleave', () => {
+          bgElement.style.opacity = '0';
+        });
+      });
+    });
+  </script>
+</body>
+</html>
