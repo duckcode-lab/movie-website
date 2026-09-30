@@ -11,14 +11,18 @@
     <div class="nav-left">
       <a href="/" class="logo">PhimHD</a>
     </div>
-    <input type="text" placeholder="Tìm kiếm phim..." class="search-input">
+    <form class="search-form" action="/" method="get" role="search">
+      <input type="search" name="q" placeholder="Tìm kiếm phim..." class="search-input" aria-label="Tìm kiếm phim" value="<%= searchQuery %>">
+      <button class="search-submit" type="submit" aria-label="Tìm kiếm"><i class="fas fa-search" aria-hidden="true"></i></button>
+    </form>
   </header>
   <div id="dynamic-bg" class="hero-background"></div>
   <div class="bg-overlay"></div>
 
   <main class="container">
-    <h2 class="section-title">Danh Sách Phim Nổi Bật</h2>
+    <h2 class="section-title"><%= searchQuery ? `Kết quả tìm kiếm cho "${searchQuery}"` : 'Danh Sách Phim Nổi Bật' %></h2>
 
+    <% if (movies.length > 0) { %>
     <div class="movie-grid">
       <% movies.forEach(movie => { %>
         <div class="movie-card-wrapper" data-banner="<%= movie.bannerUrl || movie.posterUrl %>">
@@ -71,6 +75,9 @@
         </div>
       <% }); %>
     </div>
+    <% } else { %>
+      <p class="search-empty">Không tìm thấy phim phù hợp.</p>
+    <% } %>
   </main>
   <script>
     document.addEventListener('DOMContentLoaded', () => {

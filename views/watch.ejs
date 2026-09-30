@@ -193,7 +193,10 @@
     <div class="nav-left">
       <a href="/" class="logo">PhimHD</a>
     </div>
-    <input type="text" placeholder="Tìm kiếm phim..." class="search-input">
+    <form class="search-form" action="/" method="get" role="search">
+      <input type="search" name="q" placeholder="Tìm kiếm phim..." class="search-input" aria-label="Tìm kiếm phim">
+      <button class="search-submit" type="submit" aria-label="Tìm kiếm"><i class="fas fa-search" aria-hidden="true"></i></button>
+    </form>
   </header>
 
   <main style="max-width: 1100px; margin: 20px auto; padding: 0 15px; position: relative; z-index: 2;">

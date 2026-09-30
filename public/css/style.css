@@ -62,6 +62,41 @@ body {
   width: 250px;
 }
 
+.search-form {
+  display: flex;
+  gap: 8px;
+  width: min(310px, 55vw);
+}
+
+.search-form .search-input {
+  width: 100%;
+  min-width: 0;
+}
+
+.search-submit {
+  flex: 0 0 38px;
+  border: 0;
+  border-radius: 4px;
+  background: #e50914;
+  color: #fff;
+  cursor: pointer;
+}
+
+.search-submit:hover {
+  background: #c40812;
+}
+
+.search-form .search-input:focus-visible,
+.search-submit:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.search-empty {
+  padding: 1rem 0;
+  color: #ccc;
+}
+
 .container {
   max-width: 1300px;
   margin: 2rem auto;
