@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Bắt buộc để tránh bị Server Video chặn CORS/Referer -->
   <meta name="referrer" content="no-referrer">
   <title><%= pageTitle %></title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -51,53 +52,53 @@
 
     /* Progress Bar */
     .progress-container {
-        width: 100%;
-        height: 5px;
-        background: rgba(255, 255, 255, 0.2); /* DÒNG 3: Tổng thời lượng phim */
-        cursor: pointer;
-        border-radius: 3px;
-        position: relative;
-        transition: height 0.1s ease;
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      border-radius: 3px;
+      position: relative;
+      transition: height 0.1s ease;
     }
 
     .progress-container:hover {
-        height: 8px;
+      height: 8px;
     }
     .buffered-bar {
-        height: 100%;
-        background: rgba(255, 255, 255, 0.5);
-        width: 0%;
-        border-radius: 3px;
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 1;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.5);
+      width: 0%;
+      border-radius: 3px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
     }
     .progress-bar {
-        height: 100%;
-        background: #ff4757;
-        width: 0%;
-        border-radius: 3px;
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 2;
+      height: 100%;
+      background: #ff4757;
+      width: 0%;
+      border-radius: 3px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2;
     }
     .progress-bar::after {
-        content: '';
-        position: absolute;
-        right: -6px;
-        top: 50%;
-        transform: translateY(-50%) scale(0);
-        width: 12px;
-        height: 12px;
-        background-color: #ff4757;
-        border-radius: 50%;
-        transition: transform 0.1s ease;
+      content: '';
+      position: absolute;
+      right: -6px;
+      top: 50%;
+      transform: translateY(-50%) scale(0);
+      width: 12px;
+      height: 12px;
+      background-color: #ff4757;
+      border-radius: 50%;
+      transition: transform 0.1s ease;
     }
 
     .progress-container:hover .progress-bar::after {
-        transform: translateY(-50%) scale(1);
+      transform: translateY(-50%) scale(1);
     }
     .controls-row {
       display: flex;
@@ -183,6 +184,23 @@
       color: #ff4757;
       font-weight: bold;
     }
+
+    .player-error-message {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      z-index: 20;
+      text-align: center;
+      padding: 20px;
+    }
   </style>
 </head>
 <body class="watch-page">
@@ -203,44 +221,52 @@
     
     <!-- Custom Video Player UI -->
     <div class="custom-player-wrapper" id="player-container">
-      <video id="hls-player"></video>
+      <% if (movie.videoUrl) { %>
+        <video id="hls-player" crossorigin="anonymous" playsinline></video>
 
-      <!-- Overlay Controls -->
-      <div class="player-controls">
-        <!-- Progress Bar -->
-        <div class="progress-container" id="progress-container">
-        <div class="buffered-bar" id="buffered-bar"></div>
-        <div class="progress-bar" id="progress-bar"></div>   
-        </div>
-
-        <!-- Buttons Row -->
-        <div class="controls-row">
-          <div class="controls-left">
-            <button class="btn-control" id="btn-play-pause" title="Phát/Tạm dừng"><i class="fas fa-play"></i></button>
-            <button class="btn-control" id="btn-rewind" title="Tua lùi 10s"><i class="fas fa-backward"></i></button>
-            <button class="btn-control" id="btn-forward" title="Tua tiến 10s"><i class="fas fa-forward"></i></button>
-            <button class="btn-control" id="btn-volume" title="Âm thanh"><i class="fas fa-volume-up"></i></button>
-            <span class="time-display" id="time-display">00:00 / 00:00</span>
+        <!-- Overlay Controls -->
+        <div class="player-controls">
+          <!-- Progress Bar -->
+          <div class="progress-container" id="progress-container">
+            <div class="buffered-bar" id="buffered-bar"></div>
+            <div class="progress-bar" id="progress-bar"></div>   
           </div>
 
-          <div class="controls-right">
-            <!-- Nút Cài Đặt Tốc Độ Phát -->
-            <div class="settings-container">
-              <button class="btn-control" id="btn-settings" title="Cài đặt tốc độ"><i class="fas fa-cog"></i></button>
-              <div class="settings-menu" id="settings-menu">
-                <div class="menu-title">Tốc độ phát</div>
-                <button class="speed-option" data-speed="0.5">x0.5</button>
-                <button class="speed-option active" data-speed="1.0">x1.0 (Chuẩn)</button>
-                <button class="speed-option" data-speed="1.5">x1.5</button>
-                <button class="speed-option" data-speed="2.0">x2.0</button>
-              </div>
+          <!-- Buttons Row -->
+          <div class="controls-row">
+            <div class="controls-left">
+              <button class="btn-control" id="btn-play-pause" title="Phát/Tạm dừng"><i class="fas fa-play"></i></button>
+              <button class="btn-control" id="btn-rewind" title="Tua lùi 10s"><i class="fas fa-backward"></i></button>
+              <button class="btn-control" id="btn-forward" title="Tua tiến 10s"><i class="fas fa-forward"></i></button>
+              <button class="btn-control" id="btn-volume" title="Âm thanh"><i class="fas fa-volume-up"></i></button>
+              <span class="time-display" id="time-display">00:00 / 00:00</span>
             </div>
 
-            <!-- Nút Toàn Màn Hình -->
-            <button class="btn-control" id="btn-fullscreen" title="Toàn màn hình"><i class="fas fa-expand"></i></button>
+            <div class="controls-right">
+              <!-- Nút Cài Đặt Tốc Độ Phát -->
+              <div class="settings-container">
+                <button class="btn-control" id="btn-settings" title="Cài đặt tốc độ"><i class="fas fa-cog"></i></button>
+                <div class="settings-menu" id="settings-menu">
+                  <div class="menu-title">Tốc độ phát</div>
+                  <button class="speed-option" data-speed="0.5">x0.5</button>
+                  <button class="speed-option active" data-speed="1.0">x1.0 (Chuẩn)</button>
+                  <button class="speed-option" data-speed="1.5">x1.5</button>
+                  <button class="speed-option" data-speed="2.0">x2.0</button>
+                </div>
+              </div>
+
+              <!-- Nút Toàn Màn Hình -->
+              <button class="btn-control" id="btn-fullscreen" title="Toàn màn hình"><i class="fas fa-expand"></i></button>
+            </div>
           </div>
         </div>
-      </div>
+      <% } else { %>
+        <div class="player-error-message">
+          <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff4757; margin-bottom: 15px;"></i>
+          <h3>Phim hiện chưa có link xem video!</h3>
+          <p style="color: #aaa; margin-top: 5px;">Vui lòng quay lại sau hoặc chọn phim khác.</p>
+        </div>
+      <% } %>
     </div>
 
     <!-- Thông tin phim -->
@@ -268,11 +294,12 @@
 
   </main>
 
+  <% if (movie.videoUrl) { %>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const video = document.getElementById('hls-player');
       const container = document.getElementById('player-container');
-      const videoSrc = '<%= movie.videoUrl || movie.VideoUrl || "" %>';
+      const videoSrc = '<%= movie.videoUrl %>';
 
       const btnPlayPause = document.getElementById('btn-play-pause');
       const btnRewind = document.getElementById('btn-rewind');
@@ -289,15 +316,37 @@
 
       // 1. Tải Luồng HLS Video
       if (Hls.isSupported()) {
-        const hls = new Hls({ enableWorker: true });
+        const hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: true
+        });
         hls.loadSource(videoSrc);
         hls.attachMedia(video);
+
+        hls.on(Hls.Events.ERROR, function (event, data) {
+          if (data.fatal) {
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                console.error('Lỗi mạng khi tải video, thử lại...');
+                hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                console.error('Lỗi định dạng media, phục hồi...');
+                hls.recoverMediaError();
+                break;
+              default:
+                hls.destroy();
+                break;
+            }
+          }
+        });
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = videoSrc;
       }
 
       // Format Thời gian (00:00)
       function formatTime(seconds) {
+        if (isNaN(seconds)) return '00:00';
         const m = Math.floor(seconds / 60);
         const s = Math.floor(seconds % 60);
         const hh = Math.floor(m / 60);
@@ -311,8 +360,9 @@
       // 2. Play / Pause
       function togglePlay() {
         if (video.paused) {
-          video.play();
-          btnPlayPause.innerHTML = '<i class="fas fa-pause"></i>';
+          video.play().then(() => {
+            btnPlayPause.innerHTML = '<i class="fas fa-pause"></i>';
+          }).catch(err => console.log('Lỗi phát video:', err));
         } else {
           video.pause();
           btnPlayPause.innerHTML = '<i class="fas fa-play"></i>';
@@ -336,42 +386,40 @@
       });
 
       // 5. Cập nhật Progress Bar & Thời gian
-        video.addEventListener('timeupdate', () => {
-            if (video.duration) {
-            const percent = (video.currentTime / video.duration) * 100;
-            progressBar.style.width = `${percent}%`;
-            timeDisplay.innerText = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
-            }
-        });
-        function updateBuffer() {
-            if (video.duration > 0) {
-                for (let i = 0; i < video.buffered.length; i++) {
-                    if (video.buffered.start(video.buffered.length - 1 - i) < video.currentTime) {
-                        const bufferedEnd = video.buffered.end(video.buffered.length - 1 - i);
-                        const bufferedPercent = (bufferedEnd / video.duration) * 100;
-                        bufferedBar.style.width = `${bufferedPercent}%`;
-                        break;
-                    }   
-                }
-            }
+      function updateBuffer() {
+        if (video.duration > 0 && video.buffered.length > 0) {
+          for (let i = 0; i < video.buffered.length; i++) {
+            if (video.buffered.start(video.buffered.length - 1 - i) < video.currentTime) {
+              const bufferedEnd = video.buffered.end(video.buffered.length - 1 - i);
+              const bufferedPercent = (bufferedEnd / video.duration) * 100;
+              bufferedBar.style.width = `${bufferedPercent}%`;
+              break;
+            }   
+          }
         }
-        video.addEventListener('timeupdate', () => {
-            if (video.duration) {
-                const percent = (video.currentTime / video.duration) * 100;
-                progressBar.style.width = `${percent}%`;
-                timeDisplay.innerText = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
-            }
+      }
+
+      video.addEventListener('timeupdate', () => {
+        if (video.duration) {
+          const percent = (video.currentTime / video.duration) * 100;
+          progressBar.style.width = `${percent}%`;
+          timeDisplay.innerText = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
+        }
         updateBuffer();
-        });
-        video.addEventListener('progress', updateBuffer);
-      // Click vào thanh tiến trình để Tua đến thời điểm đó
+      });
+
+      video.addEventListener('progress', updateBuffer);
+
+      // Click vào thanh tiến trình để Tua
       progressContainer.addEventListener('click', (e) => {
         const rect = progressContainer.getBoundingClientRect();
         const pos = (e.clientX - rect.left) / rect.width;
-        video.currentTime = pos * video.duration;
+        if (video.duration) {
+          video.currentTime = pos * video.duration;
+        }
       });
 
-      // 6. Menu Cài Đặt Tốc Độ (0.5x, 1x, 1.5x, 2x)
+      // 6. Menu Cài Đặt Tốc Độ
       btnSettings.addEventListener('click', (e) => {
         e.stopPropagation();
         settingsMenu.classList.toggle('active');
@@ -395,7 +443,7 @@
       // 7. Fullscreen
       btnFullscreen.addEventListener('click', () => {
         if (!document.fullscreenElement) {
-          container.requestFullscreen();
+          container.requestFullscreen().catch(err => console.log(err));
           btnFullscreen.innerHTML = '<i class="fas fa-compress"></i>';
         } else {
           document.exitFullscreen();
@@ -404,5 +452,6 @@
       });
     });
   </script>
+  <% } %>
 </body>
 </html>
