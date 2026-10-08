@@ -18,7 +18,7 @@ async function findByUsername(username) {
         [username]
     );
 
-    return rows;
+    return rows[0] || null;
 }
 
 // Tạo người dùng mới

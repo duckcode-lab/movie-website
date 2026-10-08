@@ -53,7 +53,11 @@ async function login(email, password) {
         throw new Error('User does not exist');
     }
 
-    return exitsUser;
+    return {
+        ...exitsUser,
+        accountId: exitsAccount.id,
+        role: exitsAccount.role
+    };
 }
 // Tạo accessToken và refreshToken
 async function generateTokens(accountId, role) {
@@ -70,6 +74,9 @@ async function refreshToken(refreshToken) {
     if (!decoded) {
         throw new Error('Invalid refresh token');
     }
+    if (!decoded.id) {
+        throw new Error('Refresh token does not contain an account ID. Please log in again.');
+    }
 
     const accessToken = token.generateAccessToken({ id: decoded.id, role: decoded.role });
     return accessToken;
@@ -80,6 +87,9 @@ async function getProfile(accessToken){
     const decoded =  token.verifyAccessToken(accessToken);
     if(!decoded){
         throw new Error('Invalid access token');
+    }
+    if (!decoded.id) {
+        throw new Error('Access token does not contain an account ID. Please log in again.');
     }
 
     const exitsUser = await user.findByAccountId(decoded.id);
