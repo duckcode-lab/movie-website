@@ -1,20 +1,27 @@
-require('dotenv').config();
-const express = require('express');
 const path = require('path');
+const express = require('express');
+const cookieParser = require('cookie-parser');
 const movieRoutes = require('./routes/movieRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT =  3000;
 
 // View engine
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.resolve(__dirname, '../views'));
+
+// Request body parsers
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Static folder
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/', movieRoutes);
+app.use('/api/auth', authRoutes);
 
 // Error Middleware
 app.use((err, req, res, next) => {
