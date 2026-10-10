@@ -96,7 +96,17 @@ async function getProfile(accessToken){
     if(!exitsUser) {
         throw new Error('User does not exist');
     }
-    return exitsUser;
+
+    const exitsAccount = await account.findById(decoded.id);
+    if(!exitsAccount) {
+        throw new Error('Account does not exist');
+    }
+
+    return {
+        ...exitsUser,
+        accountId: exitsAccount.id,
+        role: exitsAccount.role
+    };
 }
   
 

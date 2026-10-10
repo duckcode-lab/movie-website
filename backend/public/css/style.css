@@ -97,6 +97,101 @@ body {
   color: #ccc;
 }
 
+.comments-section {
+  margin: 28px 0;
+  padding: 22px;
+  border-radius: 12px;
+  background: rgba(20, 20, 20, 0.9);
+  color: #fff;
+}
+
+.comments-section h2 {
+  margin-bottom: 14px;
+  border-left: 4px solid #e50914;
+  padding-left: 10px;
+}
+
+.comment-status,
+.comment-empty {
+  color: #ccc;
+}
+
+.comment-form {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0 22px;
+}
+
+.comment-form[hidden] {
+  display: none;
+}
+
+.comment-form textarea {
+  width: 100%;
+  min-height: 95px;
+  padding: 12px;
+  resize: vertical;
+  border: 1px solid #555;
+  border-radius: 6px;
+  background: #222;
+  color: #fff;
+  font: inherit;
+}
+
+.comment-form button,
+.comment-actions button {
+  width: fit-content;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 5px;
+  background: #e50914;
+  color: #fff;
+  cursor: pointer;
+}
+
+.comment-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.comment-item {
+  padding: 14px;
+  border: 1px solid #383838;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.comment-heading,
+.comment-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.comment-heading {
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.comment-heading time {
+  color: #aaa;
+  font-size: 0.85rem;
+}
+
+.comment-item p {
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.comment-actions {
+  margin-top: 12px;
+}
+
+.comment-actions button:last-child {
+  background: #555;
+}
+
 .container {
   max-width: 1300px;
   margin: 2rem auto;

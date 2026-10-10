@@ -21,7 +21,6 @@ function requireLogin(req, res, next) {
         }
 
         req.user = decoded;
-
         next();
 
     } catch (error) {
@@ -32,7 +31,7 @@ function requireLogin(req, res, next) {
     }
 }
 
-// Kiểm tra là admin
+// Kiểm tra là admin (Chấp nhận cả ADMIN và admin)
 function isAdmin(req, res, next) {
     const user = req.user;
     if (!user) {
@@ -42,7 +41,8 @@ function isAdmin(req, res, next) {
         });
     }
 
-    if (user.role === "admin") return next();
+    const role = (user.role || '').toLowerCase();
+    if (role === "admin") return next();
 
     return res.status(403).json({
         success: false,
@@ -50,7 +50,7 @@ function isAdmin(req, res, next) {
     });
 }
 
-// Kiểm tra là user
+// Kiểm tra là user (Chấp nhận cả USER và user)
 function isUser(req, res, next) {
     const user = req.user;
     if (!user) {
@@ -60,7 +60,27 @@ function isUser(req, res, next) {
         });
     }
 
-    if (user.role === "user") return next();
+    const role = (user.role || '').toLowerCase();
+    if (role === "user") return next();
+
+    return res.status(403).json({
+        success: false,
+        message: "Forbidden"
+    });
+}
+
+// Kiểm tra là user hoặc admin
+function isUserOrAdmin(req, res, next) {
+    const user = req.user;
+    if (!user) {
+        return res.status(401).json({
+            success: false,
+            message: "Unauthorized"
+        });
+    }
+
+    const role = (user.role || '').toLowerCase();
+    if (role === "user" || role === "admin") return next();
 
     return res.status(403).json({
         success: false,
@@ -71,5 +91,6 @@ function isUser(req, res, next) {
 module.exports = {
     requireLogin,
     isAdmin,
-    isUser
+    isUser,
+    isUserOrAdmin
 };
