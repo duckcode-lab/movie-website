@@ -73,7 +73,7 @@ async function create(req, res, next) {
       });
     }
 
-    await commentModel.create(movieId, user.id, content);
+    await commentModel.create(movieId, accountId, content);
     return res.status(201).json({
       success: true,
       message: 'Đã gửi bình luận'
