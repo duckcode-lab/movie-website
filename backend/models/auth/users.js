@@ -33,8 +33,4 @@ async function createUser(accountId, username, fullname) {
     return result.insertId;
 }
 
-module.exports = {
-    findByAccountId,
-    findByUsername,
-    createUser
-};
+module.exports = { findByAccountId, findByUsername, createUser };

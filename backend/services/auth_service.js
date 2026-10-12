@@ -1,6 +1,7 @@
 const account = require('../models/auth/accounts');
 const user = require('../models/auth/users');
 const {hashPassword, comparePassword} = require('../utils/password');
+const otp = require('../utils/otp');
 const token = require('../utils/token');
 
 async function register(email, password, username, fullname)
@@ -108,6 +109,8 @@ async function getProfile(accessToken){
         role: exitsAccount.role
     };
 }
+
+
   
 
 module.exports = { register, login, generateTokens, refreshToken, getProfile };
