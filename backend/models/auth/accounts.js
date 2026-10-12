@@ -22,4 +22,15 @@ async function createAccount(email, passwordHash) {
     return result.insertId;
 }
 
-module.exports = { findByEmail, findById, createAccount };
+async function updatePassword(accountId, passwordHash) {
+    const [result] = await db.execute(
+        `UPDATE accounts
+         SET password_hash = ?, updated_at = NOW()
+         WHERE id = ?`,
+        [passwordHash, accountId]
+    );
+
+    return result.affectedRows === 1;
+}
+
+module.exports = { findByEmail, findById, createAccount, updatePassword };

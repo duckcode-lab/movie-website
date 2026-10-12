@@ -1,6 +1,4 @@
 
-const jwt = require('jsonwebtoken');
-
 const otpModel = require('../models/auth/otp');
 const emailService = require('./email_service');
 

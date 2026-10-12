@@ -1,4 +1,5 @@
 const { verifyAccessToken } = require("../utils/token");
+const otpService = require("../services/otp_service");
 
 function requireLogin(req, res, next) {
     try {
@@ -88,9 +89,46 @@ function isUserOrAdmin(req, res, next) {
     });
 }
 
+// Kiểm tra otp
+function verifyOtp(expectedPurpose) {
+    return async function verifyOtpMiddleware(req, res, next) {
+        try {
+            const { email, otp, purpose } = req.body || {};
+
+            if (expectedPurpose && purpose !== expectedPurpose) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid OTP purpose'
+                });
+            }
+
+            await otpService.verifyOtp(email, otp, purpose);
+            return next();
+        } catch (error) {
+            if (
+                error.message === 'Invalid email' ||
+                error.message === 'Invalid OTP purpose' ||
+                error.message === 'Invalid or expired OTP'
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            console.error('Verify OTP error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Unable to verify OTP'
+            });
+        }
+    };
+}
+
 module.exports = {
     requireLogin,
     isAdmin,
     isUser,
-    isUserOrAdmin
+    isUserOrAdmin,
+    verifyOtp
 };

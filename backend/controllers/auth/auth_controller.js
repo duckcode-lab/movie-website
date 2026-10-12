@@ -32,6 +32,49 @@ async function register(req, res) {
     }
 }
 
+// Đặt lại mật khẩu sau khi xác minh OTP
+async function resetPassword(req, res) {
+    try {
+        const { email, newPassword } = req.body || {};
+
+        if (!email || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Email and new password are required"
+            });
+        }
+
+        const result = await authService.changePassword(email, newPassword);
+        return res.status(200).json({
+            success: true,
+            message: "Password reset successfully",
+            data: result
+        });
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+async function completeOtpAction(req, res) {
+    const { purpose } = req.body || {};
+
+    if (purpose === 'REGISTER') {
+        return register(req, res);
+    }
+
+    if (purpose === 'RESET_PASSWORD') {
+        return resetPassword(req, res);
+    }
+
+    return res.status(400).json({
+        success: false,
+        message: 'Invalid OTP purpose'
+    });
+}
+
 // Đăng nhập
 async function login(req, res) {
     try {
@@ -109,4 +152,4 @@ async function getProfile(req, res) {
     }
 }
 
-module.exports = { register, login, refreshToken, getProfile };
+module.exports = { register, resetPassword, completeOtpAction, login, refreshToken, getProfile };

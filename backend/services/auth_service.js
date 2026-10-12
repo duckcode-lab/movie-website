@@ -10,6 +10,8 @@ async function register(email, password, username, fullname)
         throw new Error('Email, password, username, and fullname are required');
     }
 
+    email = String(email).trim().toLowerCase();
+
     const existingAccount = await account.findByEmail(email);
     if(existingAccount){
         throw new Error('Email already exists');
@@ -36,6 +38,31 @@ async function register(email, password, username, fullname)
         email,
         fullname
     };
+}
+
+async function changePassword(email, newPassword) {
+    email = String(email || '').trim().toLowerCase();
+
+    if (!email || !newPassword) {
+        throw new Error('Email and new password are required');
+    }
+
+    const existingAccount = await account.findByEmail(email);
+    if (!existingAccount) {
+        throw new Error('Email does not exist');
+    }
+
+    const passwordHash = await hashPassword(newPassword);
+    const updated = await account.updatePassword(
+        existingAccount.id,
+        passwordHash
+    );
+
+    if (!updated) {
+        throw new Error('Unable to update password');
+    }
+
+    return { email };
 }
 
 async function login(email, password) {
@@ -113,4 +140,11 @@ async function getProfile(accessToken){
 
   
 
-module.exports = { register, login, generateTokens, refreshToken, getProfile };
+module.exports = {
+    register,
+    changePassword,
+    login,
+    generateTokens,
+    refreshToken,
+    getProfile
+};
