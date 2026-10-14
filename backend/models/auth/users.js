@@ -22,12 +22,12 @@ async function findByUsername(username) {
 }
 
 // Tạo người dùng mới
-async function createUser(accountId, username, fullname) {
+async function createUser({ accountId, username, fullname, avatar_url = null, date_of_birth = null, gender = null, bio = null }) {
     const [result] = await db.execute(
         `INSERT INTO users
-        (account_id, username, full_name, created_at, updated_at)
-        VALUES (?, ?, ?, NOW(), NOW())`,
-        [accountId, username, fullname]
+        (account_id, username, full_name, avatar_url, date_of_birth, gender, bio, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+        [accountId, username, fullname, avatar_url, date_of_birth, gender, bio]
     );
 
     return result.insertId;

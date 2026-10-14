@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineVerse - Google Login Test</title>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+
+<body>
+    <h1>CineVerse</h1>
+    <h2>Kiểm thử đăng nhập Google</h2>
+
+    <div id="googleButton"></div>
+
+    <p id="status">Hãy đăng nhập bằng Google.</p>
+    <pre id="result"></pre>
+
+    <script>
+        window.onload = function () {
+            google.accounts.id.initialize({
+                client_id: '466952248226-eei55rl05fvt8gh9bh7huq548savrtpn.apps.googleusercontent.com',
+                callback: handleGoogleCredential
+            });
+
+            google.accounts.id.renderButton(
+                document.getElementById('googleButton'),
+                {
+                    theme: 'outline',
+                    size: 'large',
+                    text: 'signin_with',
+                    shape: 'rectangular'
+                }
+            );
+        };
+
+        async function handleGoogleCredential(response) {
+            const credential = response.credential;
+
+            document.getElementById('status').textContent =
+                'Đang xác minh với Backend...';
+
+            try {
+                const res = await fetch('/api/auth/google/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ credential })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    throw new Error(data.message || 'Đăng nhập Google thất bại.');
+                }
+
+                if (!data.data) {
+                    throw new Error('Backend không trả về profile người dùng.');
+                }
+
+                document.getElementById('status').textContent =
+                    'Đăng nhập thành công. Profile:';
+                document.getElementById('result').textContent =
+                    JSON.stringify(data.data, null, 2);
+            } catch (error) {
+                document.getElementById('status').textContent =
+                    error.message || 'Không kết nối được Backend.';
+            }
+        }
+    </script>
+</body>
+
+</html>

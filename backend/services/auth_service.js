@@ -30,7 +30,7 @@ async function register(email, password, username, fullname)
         hashedPassword
     );
 
-    await user.createUser(accountId, username, fullname);
+    await user.createUser({ accountId, username, fullname });
 
     return {
         accountId,
