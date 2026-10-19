@@ -30,3 +30,31 @@
 Ứng dụng kiểm tra kết nối MySQL trước khi bắt đầu lắng nghe cổng HTTP. Nếu kết
 nối thất bại, kiểm tra thông tin trong `.env`, quyền database, và việc đã chạy
 schema hay chưa.
+
+## API quản lý hồ sơ và phim
+
+Các API hồ sơ yêu cầu access token trong header `Authorization: Bearer <token>`.
+Hồ sơ thường được tạo trong luồng đăng ký (`POST /api/auth/register` sau khi xác
+minh OTP). Tài khoản đã đăng nhập chưa có hồ sơ có thể tạo bằng `POST
+/api/auth/profile`; người dùng chỉ có thể quản lý hồ sơ của chính mình:
+
+- `POST /api/auth/profile` — tạo hồ sơ với `username` và `full_name` bắt buộc;
+  có thể gửi thêm `avatar_url`, `date_of_birth`, `gender`, `bio`.
+- `GET /api/auth/profile`
+- `PATCH /api/auth/profile` — nhận các trường `username`, `full_name`,
+  `avatar_url`, `date_of_birth` (định dạng `YYYY-MM-DD`), `gender`, `bio`.
+  Email và role không thể đổi qua API hồ sơ.
+- `DELETE /api/auth/profile` — xóa vĩnh viễn tài khoản, hồ sơ, bình luận, OTP
+  và liên kết đăng nhập của tài khoản. Client nên xóa token đã lưu sau khi nhận
+  phản hồi thành công.
+
+Đọc và tìm kiếm phim vẫn công khai qua `GET /api/movies` và `GET /api/movies/:id`.
+Tạo, cập nhật hoặc xóa phim chỉ dành cho tài khoản có role `admin`:
+
+- `POST /api/movies` — tạo phim, bắt buộc `title`.
+- `PUT` hoặc `PATCH /api/movies/:id` — cập nhật một phần thông tin phim.
+- `DELETE /api/movies/:id` — xóa phim.
+
+Các trường phim có thể ghi: `title`, `englishTitle`, `genre`, `cast`, `director`,
+`studio`, `country`, `bannerUrl`, `posterUrl`, `videoUrl`, `quality`, `rating`,
+`episodes`, `year`, `description`.

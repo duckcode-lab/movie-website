@@ -1,34 +1,47 @@
 const { verifyAccessToken } = require("../utils/token");
 const otpService = require("../services/otp_service");
+const accountModel = require("../models/auth/accounts");
 
-function requireLogin(req, res, next) {
+async function requireLogin(req, res, next) {
+    const accessToken = req.headers.authorization?.split(' ')[1];
+
+    if (!accessToken) {
+        return res.status(401).json({
+            success: false,
+            message: "Unauthorized"
+        });
+    }
+
+    let decoded;
     try {
-        const accessToken = req.headers.authorization?.split(' ')[1];
-
-        if (!accessToken) {
-            return res.status(401).json({
-                success: false,
-                message: "Unauthorized"
-            });
-        }
-
-        const decoded = verifyAccessToken(accessToken);
-
-        if (decoded.type !== "access") {
-            return res.status(401).json({
-                success: false,
-                message: "Invalid access token"
-            });
-        }
-
-        req.user = decoded;
-        next();
-
+        decoded = verifyAccessToken(accessToken);
     } catch (error) {
         return res.status(401).json({
             success: false,
             message: "Invalid or expired access token"
         });
+    }
+
+    if (decoded.type !== "access" || !decoded.id) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid access token"
+        });
+    }
+
+    try {
+        const account = await accountModel.findById(decoded.id);
+        if (!account) {
+            return res.status(401).json({
+                success: false,
+                message: "Account no longer exists"
+            });
+        }
+
+        req.user = { ...decoded, role: account.role };
+        return next();
+    } catch (error) {
+        return next(error);
     }
 }
 

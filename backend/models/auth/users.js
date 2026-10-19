@@ -21,6 +21,39 @@ async function findByUsername(username) {
     return rows[0] || null;
 }
 
+async function isUsernameTaken(username, accountId) {
+    const [rows] = await db.execute(
+        `SELECT id
+         FROM users
+         WHERE username = ? AND account_id <> ?
+         LIMIT 1`,
+        [username, accountId]
+    );
+
+    return rows.length > 0;
+}
+
+async function updateProfile(accountId, profile) {
+    const fields = {
+        username: 'username',
+        full_name: 'full_name',
+        avatar_url: 'avatar_url',
+        date_of_birth: 'date_of_birth',
+        gender: 'gender',
+        bio: 'bio'
+    };
+    const updates = Object.keys(profile);
+    const assignments = updates.map((field) => `\`${fields[field]}\` = ?`).join(', ');
+    const values = updates.map((field) => profile[field]);
+
+    await db.execute(
+        `UPDATE users
+         SET ${assignments}, updated_at = NOW()
+         WHERE account_id = ?`,
+        [...values, accountId]
+    );
+}
+
 // Tạo người dùng mới
 async function createUser({ accountId, username, fullname, avatar_url = null, date_of_birth = null, gender = null, bio = null }) {
     const [result] = await db.execute(
@@ -33,4 +66,10 @@ async function createUser({ accountId, username, fullname, avatar_url = null, da
     return result.insertId;
 }
 
-module.exports = { findByAccountId, findByUsername, createUser };
+module.exports = {
+    findByAccountId,
+    findByUsername,
+    isUsernameTaken,
+    updateProfile,
+    createUser
+};

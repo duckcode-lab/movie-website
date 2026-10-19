@@ -72,8 +72,7 @@ async function create(req, res, next) {
         message: 'Không tìm thấy hồ sơ người dùng'
       });
     }
-
-    await commentModel.create(movieId, accountId, content);
+    await commentModel.create(movieId, user.id, content);
     return res.status(201).json({
       success: true,
       message: 'Đã gửi bình luận'

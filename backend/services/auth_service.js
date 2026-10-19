@@ -1,5 +1,6 @@
 const account = require('../models/auth/accounts');
 const user = require('../models/auth/users');
+const db = require('../config/database');
 const {hashPassword, comparePassword} = require('../utils/password');
 const otp = require('../utils/otp');
 const token = require('../utils/token');
@@ -111,32 +112,108 @@ async function refreshToken(refreshToken) {
 }
 
 // Lấy thông tin cá nhân
-async function getProfile(accessToken){
-    const decoded =  token.verifyAccessToken(accessToken);
-    if(!decoded){
-        throw new Error('Invalid access token');
-    }
-    if (!decoded.id) {
-        throw new Error('Access token does not contain an account ID. Please log in again.');
-    }
-
-    const exitsUser = await user.findByAccountId(decoded.id);
-    if(!exitsUser) {
+async function getProfile(accountId) {
+    const profile = await user.findByAccountId(accountId);
+    if (!profile) {
         throw new Error('User does not exist');
     }
 
-    const exitsAccount = await account.findById(decoded.id);
-    if(!exitsAccount) {
+    const accountProfile = await account.findById(accountId);
+    if (!accountProfile) {
         throw new Error('Account does not exist');
     }
 
     return {
-        ...exitsUser,
-        accountId: exitsAccount.id,
-        role: exitsAccount.role
+        ...profile,
+        accountId: accountProfile.id,
+        email: accountProfile.email,
+        role: accountProfile.role
     };
 }
 
+async function updateProfile(accountId, changes) {
+    const currentProfile = await user.findByAccountId(accountId);
+    if (!currentProfile) {
+        throw new Error('User does not exist');
+    }
+
+    if (
+        Object.hasOwn(changes, 'username') &&
+        await user.isUsernameTaken(changes.username, accountId)
+    ) {
+        throw new Error('Username already exists');
+    }
+
+    await user.updateProfile(accountId, changes);
+    return getProfile(accountId);
+}
+
+async function createProfile(accountId, profile) {
+    const currentProfile = await user.findByAccountId(accountId);
+    if (currentProfile) {
+        throw new Error('Profile already exists');
+    }
+
+    if (await user.findByUsername(profile.username)) {
+        throw new Error('Username already exists');
+    }
+
+    await user.createUser({
+        accountId,
+        username: profile.username,
+        fullname: profile.full_name,
+        avatar_url: profile.avatar_url,
+        date_of_birth: profile.date_of_birth,
+        gender: profile.gender,
+        bio: profile.bio
+    });
+
+    return getProfile(accountId);
+}
+
+async function deleteProfile(accountId) {
+    const connection = await db.getConnection();
+
+    try {
+        await connection.beginTransaction();
+
+        const [rows] = await connection.execute(
+            `SELECT a.email, u.id AS userId
+             FROM accounts a
+             LEFT JOIN users u ON u.account_id = a.id
+             WHERE a.id = ?
+             FOR UPDATE`,
+            [accountId]
+        );
+
+        if (rows.length === 0) {
+            await connection.rollback();
+            return false;
+        }
+
+        if (rows[0].userId) {
+            await connection.execute(
+                'DELETE FROM movie_comment WHERE user_id = ?',
+                [rows[0].userId]
+            );
+        }
+        await connection.execute('DELETE FROM email_otps WHERE email = ?', [rows[0].email]);
+        await connection.execute('DELETE FROM account_providers WHERE account_id = ?', [accountId]);
+        await connection.execute('DELETE FROM users WHERE account_id = ?', [accountId]);
+        const [result] = await connection.execute(
+            'DELETE FROM accounts WHERE id = ?',
+            [accountId]
+        );
+
+        await connection.commit();
+        return result.affectedRows === 1;
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        connection.release();
+    }
+}
 
   
 
@@ -146,5 +223,8 @@ module.exports = {
     login,
     generateTokens,
     refreshToken,
-    getProfile
+    getProfile,
+    createProfile,
+    updateProfile,
+    deleteProfile
 };

@@ -1,5 +1,73 @@
 const authService = require("../../services/auth_service");
 
+const profileFields = {
+    username: 'username',
+    full_name: 'full_name',
+    avatar_url: 'avatar_url',
+    date_of_birth: 'date_of_birth',
+    gender: 'gender',
+    bio: 'bio'
+};
+
+function validateProfile(body, requireIdentityFields = false) {
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+        return { error: 'Dữ liệu hồ sơ không hợp lệ' };
+    }
+
+    const fields = Object.keys(body);
+    if (
+        fields.length === 0 ||
+        fields.some((field) => !Object.hasOwn(profileFields, field))
+    ) {
+        return { error: 'Cung cấp ít nhất một trường hồ sơ hợp lệ' };
+    }
+
+    const changes = {};
+    for (const field of fields) {
+        const value = body[field];
+        if (value !== null && typeof value !== 'string') {
+            return { error: `Giá trị ${field} không hợp lệ` };
+        }
+
+        const normalized = typeof value === 'string' ? value.trim() : value;
+        if (
+            ['username', 'full_name'].includes(field) &&
+            (typeof normalized !== 'string' || !normalized)
+        ) {
+            return { error: `${field} không được để trống` };
+        }
+
+        if (field === 'date_of_birth' && normalized !== null) {
+            const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(normalized);
+            if (match) {
+                const [, year, month, day] = match.map(Number);
+                const date = new Date(Date.UTC(year, month - 1, day));
+                if (
+                    date.getUTCFullYear() === year &&
+                    date.getUTCMonth() === month - 1 &&
+                    date.getUTCDate() === day
+                ) {
+                    changes[profileFields[field]] = normalized;
+                    continue;
+                }
+            }
+
+            return { error: 'Ngày sinh phải theo định dạng YYYY-MM-DD hợp lệ' };
+        }
+
+        changes[profileFields[field]] = normalized;
+    }
+
+    if (
+        requireIdentityFields &&
+        (!Object.hasOwn(changes, 'username') || !Object.hasOwn(changes, 'full_name'))
+    ) {
+        return { error: 'username và full_name là bắt buộc để tạo hồ sơ' };
+    }
+
+    return { changes };
+}
+
 // Đăng ký 
 async function register(req, res) {
     try {
@@ -117,22 +185,101 @@ async function refreshToken(req, res) {
 }
 
 // Lấy thông tin cá nhân
-async function getProfile(req, res) {
+async function getProfile(req, res, next) {
     try {
-        const accessToken = req.headers.authorization?.split(' ')[1];
-
-        const user = await authService.getProfile(accessToken);
+        const user = await authService.getProfile(req.user.id);
         return res.status(200).json({
             success: true,
             message: "Profile retrieved successfully",
             data: user
         });
     } catch (error) {
-        return res.status(400).json({
-            success: false,
-            message: error.message
-        });
+        if (error.message === 'User does not exist' || error.message === 'Account does not exist') {
+            return res.status(404).json({
+                success: false,
+                message: error.message
+            });
+        }
+        return next(error);
     }
 }
 
-module.exports = { register, resetPassword, login, refreshToken, getProfile };
+async function updateProfile(req, res, next) {
+    try {
+        const { changes, error } = validateProfile(req.body);
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                message: error
+            });
+        }
+
+        const profile = await authService.updateProfile(req.user.id, changes);
+        return res.json({
+            success: true,
+            message: 'Đã cập nhật hồ sơ',
+            data: profile
+        });
+    } catch (error) {
+        if (error.message === 'Username already exists') {
+            return res.status(409).json({
+                success: false,
+                message: error.message
+            });
+        }
+        return next(error);
+    }
+}
+
+async function createProfile(req, res, next) {
+    try {
+        const { changes, error } = validateProfile(req.body, true);
+        if (error) {
+            return res.status(400).json({ success: false, message: error });
+        }
+
+        const profile = await authService.createProfile(req.user.id, changes);
+        return res.status(201).json({
+            success: true,
+            message: 'Đã tạo hồ sơ',
+            data: profile
+        });
+    } catch (error) {
+        if (error.message === 'Profile already exists' ||
+            error.message === 'Username already exists') {
+            return res.status(409).json({
+                success: false,
+                message: error.message
+            });
+        }
+        return next(error);
+    }
+}
+
+async function deleteProfile(req, res, next) {
+    try {
+        const deleted = await authService.deleteProfile(req.user.id);
+        if (!deleted) {
+            return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy hồ sơ'
+            });
+        }
+
+        return res.status(204).end();
+    } catch (error) {
+        return next(error);
+    }
+}
+
+module.exports = {
+    register,
+    resetPassword,
+    completeOtpAction,
+    login,
+    refreshToken,
+    getProfile,
+    createProfile,
+    updateProfile,
+    deleteProfile
+};

@@ -53,7 +53,9 @@ function App() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.get(`/api/movies?q=${searchQuery}`);
+      const res = await axios.get('/api/movies', {
+        params: { q: searchQuery.trim() }
+      });
       if (res.data.success) {
         setMovies(res.data.data.movies || []);
       }
@@ -81,7 +83,7 @@ function App() {
         <form className="search-form" onSubmit={handleSearch}>
           <input
             type="search"
-            placeholder="Tìm kiếm phim..."
+            placeholder="Tìm phim hoặc thể loại (ví dụ: hành động)..."
             className="search-input"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

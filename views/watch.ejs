@@ -291,7 +291,20 @@
         <p style="line-height: 1.6; color: #ddd; margin-bottom: 20px;"><%= movie.description %></p>
       </div>
     </div>
+    <section style="margin-top: 30px; background: rgba(20, 20, 20, 0.85); padding: 20px; border-radius: 12px; backdrop-filter: blur(10px); color: #fff;">
+      <h3 style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Bình luận phim</h3>
 
+      <!-- Form gửi bình luận -->
+      <form id="comment-form" style="margin-bottom: 25px; display: flex; flex-direction: column; gap: 10px;">
+        <textarea id="comment-content" rows="3" placeholder="Nhập bình luận của bạn..." required style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 10px; color: #fff; resize: vertical;"></textarea>
+        <button type="submit" style="align-self: flex-end; background: #ff4757; color: #fff; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">Gửi bình luận</button>
+      </form>
+
+      <!-- Danh sách hiển thị bình luận -->
+      <div id="comments-list" style="display: flex; flex-direction: column; gap: 15px;">
+        <!-- Các bình luận sẽ được render tự động vào đây bằng JavaScript -->
+      </div>
+    </section>
   </main>
 
   <% if (movie.videoUrl) { %>
