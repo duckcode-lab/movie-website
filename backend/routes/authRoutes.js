@@ -7,7 +7,6 @@ const googleAuthController = require('../controllers/auth/google_auth_controller
 
 router.post('/register', verifyOtp('REGISTER'), authController.register);
 router.put('/reset_password', verifyOtp('RESET_PASSWORD'), authController.resetPassword);
-router.post('/verify_otp', verifyOtp(), authController.completeOtpAction);
 router.post('/login', authController.login);
 router.post('/refresh_token', authController.refreshToken);
 router.get('/profile', authController.getProfile);

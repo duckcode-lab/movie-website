@@ -93,16 +93,16 @@ function isUserOrAdmin(req, res, next) {
 function verifyOtp(expectedPurpose) {
     return async function verifyOtpMiddleware(req, res, next) {
         try {
-            const { email, otp, purpose } = req.body || {};
+            const { email, otp} = req.body || {};
 
-            if (expectedPurpose && purpose !== expectedPurpose) {
+            if (!expectedPurpose) {
                 return res.status(400).json({
                     success: false,
                     message: 'Invalid OTP purpose'
                 });
             }
 
-            await otpService.verifyOtp(email, otp, purpose);
+            await otpService.verifyOtp(email, otp, expectedPurpose);
             return next();
         } catch (error) {
             if (
