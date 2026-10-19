@@ -58,23 +58,6 @@ async function resetPassword(req, res) {
     }
 }
 
-async function completeOtpAction(req, res) {
-    const { purpose } = req.body || {};
-
-    if (purpose === 'REGISTER') {
-        return register(req, res);
-    }
-
-    if (purpose === 'RESET_PASSWORD') {
-        return resetPassword(req, res);
-    }
-
-    return res.status(400).json({
-        success: false,
-        message: 'Invalid OTP purpose'
-    });
-}
-
 // Đăng nhập
 async function login(req, res) {
     try {
@@ -152,4 +135,4 @@ async function getProfile(req, res) {
     }
 }
 
-module.exports = { register, resetPassword, completeOtpAction, login, refreshToken, getProfile };
+module.exports = { register, resetPassword, login, refreshToken, getProfile };

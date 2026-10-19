@@ -107,7 +107,6 @@ function verifyOtp(expectedPurpose) {
         } catch (error) {
             if (
                 error.message === 'Invalid email' ||
-                error.message === 'Invalid OTP purpose' ||
                 error.message === 'Invalid or expired OTP'
             ) {
                 return res.status(400).json({

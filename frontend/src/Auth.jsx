@@ -7,6 +7,8 @@ function Auth() {
   const location = useLocation();
   const navigate = useNavigate();
   const [mode, setMode] = useState(location.pathname === '/register' ? 'register' : 'login');
+  const [step, setStep] = useState('form');
+  const [otp, setOtp] = useState('');
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -19,8 +21,10 @@ function Auth() {
 
   function switchMode(nextMode) {
     setMode(nextMode);
+    setStep('form');
+    setOtp('');
     setMessage('');
-    navigate(nextMode === 'login' ? '/login' : '/register', { replace: true });
+    navigate(nextMode === 'register' ? '/register' : '/login', { replace: true });
   }
 
   function updateField(event) {
@@ -36,21 +40,43 @@ function Auth() {
     setMessage('');
 
     try {
-      if (mode === 'register') {
-        // Gọi API Đăng ký
-        await axios.post('/api/auth/register', {
+      if (step === 'otp') {
+        const payload = {
           email: form.email,
-          password: form.password,
-          username: form.username,
-          fullname: form.fullname
-        });
-        
+          otp,
+          ...(mode === 'register'
+            ? {
+                password: form.password,
+                username: form.username,
+                fullname: form.fullname
+              }
+            : { newPassword: form.password })
+        };
+
+        if (mode === 'register') {
+          await axios.post('/api/auth/register', payload);
+        } else {
+          await axios.put('/api/auth/reset_password', payload);
+        }
+        setStep('form');
+        setOtp('');
         setForm({ email: '', password: '', username: '', fullname: '' });
         setIsError(false);
-        switchMode('login');
-        setMessage('Đăng ký thành công. Vui lòng đăng nhập.');
+        setMode('login');
+        navigate('/login', { replace: true });
+        setMessage(mode === 'register'
+          ? 'Đăng ký thành công. Vui lòng đăng nhập.'
+          : 'Đổi mật khẩu thành công. Vui lòng đăng nhập.');
+      } else if (mode === 'register' || mode === 'resetPassword') {
+        const purpose = mode === 'register' ? 'REGISTER' : 'RESET_PASSWORD';
+        await axios.post('/api/auth/send_otp', {
+          email: form.email,
+          purpose
+        });
+        setStep('otp');
+        setIsError(false);
+        setMessage('Mã OTP đã được gửi đến email của bạn.');
       } else {
-        // Gọi API Đăng nhập
         const response = await axios.post('/api/auth/login', {
           email: form.email,
           password: form.password
@@ -81,11 +107,24 @@ function Auth() {
     <main className="auth-page">
       <section className="auth-card" aria-labelledby="auth-title">
         <Link to="/" className="auth-logo">PhimHD</Link>
-        <h1 id="auth-title">{mode === 'login' ? 'Chào mừng trở lại' : 'Tạo tài khoản'}</h1>
+        <h1 id="auth-title">
+          {step === 'otp'
+            ? 'Xác minh email'
+            : mode === 'login'
+              ? 'Chào mừng trở lại'
+              : mode === 'register' ? 'Tạo tài khoản' : 'Đổi mật khẩu'}
+        </h1>
         <p className="auth-subtitle">
-          {mode === 'login' ? 'Đăng nhập để tiếp tục' : 'Đăng ký để tham gia cùng PhimHD'}
+          {step === 'otp'
+            ? `Nhập mã 6 chữ số đã gửi đến ${form.email}`
+            : mode === 'login'
+              ? 'Đăng nhập để tiếp tục'
+              : mode === 'register'
+                ? 'Đăng ký để tham gia cùng PhimHD'
+                : 'Nhập email và mật khẩu mới để tiếp tục'}
         </p>
 
+        {step === 'form' && mode !== 'resetPassword' && (
         <div className="auth-tabs" role="tablist" aria-label="Chọn đăng nhập hoặc đăng ký">
           <button
             type="button"
@@ -106,6 +145,7 @@ function Auth() {
             Đăng ký
           </button>
         </div>
+        )}
 
         {message && (
           <p className={`auth-message ${isError ? 'error' : 'success'}`} role="status">
@@ -114,6 +154,35 @@ function Auth() {
         )}
 
         <form className="auth-form" onSubmit={handleSubmit}>
+          {step === 'otp' ? (
+            <>
+              <label htmlFor="auth-otp">Mã OTP</label>
+              <input
+                id="auth-otp"
+                name="otp"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                value={otp}
+                onChange={(event) => setOtp(event.target.value.replace(/\D/g, ''))}
+                required
+              />
+              <button
+                className="auth-secondary-action"
+                type="button"
+                onClick={() => {
+                  setStep('form');
+                  setOtp('');
+                  setMessage('');
+                }}
+              >
+                Quay lại
+              </button>
+            </>
+          ) : (
+          <>
           {mode === 'register' && (
             <>
               <label htmlFor="auth-fullname">Họ và tên</label>
@@ -157,15 +226,31 @@ function Auth() {
             name="password"
             type="password"
             autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+            minLength={mode === 'login' ? undefined : 8}
             value={form.password}
             onChange={updateField}
             required
           />
+          {mode === 'login' && (
+            <button
+              className="auth-secondary-action"
+              type="button"
+              onClick={() => switchMode('resetPassword')}
+            >
+              Quên mật khẩu?
+            </button>
+          )}
+          </>
+          )}
 
           <button className="auth-submit" type="submit" disabled={submitting}>
             {submitting
               ? 'Đang xử lý...'
-              : mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}
+              : step === 'otp'
+                ? mode === 'register' ? 'Xác minh và đăng ký' : 'Xác minh và đổi mật khẩu'
+                : mode === 'login'
+                  ? 'Đăng nhập'
+                  : mode === 'register' ? 'Gửi mã OTP' : 'Gửi mã OTP'}
           </button>
         </form>
       </section>
