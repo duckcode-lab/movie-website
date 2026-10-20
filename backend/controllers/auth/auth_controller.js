@@ -1,4 +1,5 @@
 const authService = require("../../services/auth_service");
+const otpService = require("../../services/otp_service");
 
 const profileFields = {
     username: 'username',
@@ -71,20 +72,22 @@ function validateProfile(body, requireIdentityFields = false) {
 // Đăng ký 
 async function register(req, res) {
     try {
-        const { email, password, username, fullname } = req.body || {};
+        const user = await otpService.completeOtpAction(
+            req.otpVerification,
+            async () => {
+                const { email, password, username, fullname } = req.body || {};
 
-        if (!email || !password || !username || !fullname) {
-            return res.status(400).json({
-                success: false,
-                message: "Email, password, username, and fullname are required"
-            });
-        }
+                if (!email || !password || !username || !fullname) {
+                    throw new Error("Email, password, username, and fullname are required");
+                }
 
-        const user = await authService.register(
-            email,
-            password,
-            username,
-            fullname
+                return authService.register(
+                    email,
+                    password,
+                    username,
+                    fullname
+                );
+            }
         );
 
         return res.status(201).json({
@@ -103,16 +106,18 @@ async function register(req, res) {
 // Đặt lại mật khẩu sau khi xác minh OTP
 async function resetPassword(req, res) {
     try {
-        const { email, newPassword } = req.body || {};
+        const result = await otpService.completeOtpAction(
+            req.otpVerification,
+            async () => {
+                const { email, newPassword } = req.body || {};
 
-        if (!email || !newPassword) {
-            return res.status(400).json({
-                success: false,
-                message: "Email and new password are required"
-            });
-        }
+                if (!email || !newPassword) {
+                    throw new Error("Email and new password are required");
+                }
 
-        const result = await authService.changePassword(email, newPassword);
+                return authService.changePassword(email, newPassword);
+            }
+        );
         return res.status(200).json({
             success: true,
             message: "Password reset successfully",
@@ -275,7 +280,6 @@ async function deleteProfile(req, res, next) {
 module.exports = {
     register,
     resetPassword,
-    completeOtpAction,
     login,
     refreshToken,
     getProfile,

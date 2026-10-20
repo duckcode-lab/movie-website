@@ -115,7 +115,11 @@ function verifyOtp(expectedPurpose) {
                 });
             }
 
-            await otpService.verifyOtp(email, otp, expectedPurpose);
+            req.otpVerification = await otpService.verifyOtp(
+                email,
+                otp,
+                expectedPurpose
+            );
             return next();
         } catch (error) {
             if (

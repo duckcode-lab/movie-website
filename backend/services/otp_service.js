@@ -106,23 +106,33 @@ async function verifyOtp(email, otp, purpose) {
         throw new Error('Invalid or expired OTP');
     }
 
-    const otpHash = hashOtp(otp);
-
-    const consumed = await otpModel.consumeOtp(
-        record.id,
-        otpHash
-    );
-
-    if (!consumed) {
-        throw new Error('Invalid or expired OTP');
-    }
-
     return {
-        message: 'OTP verified successfully',
+        id: record.id,
+        otpHash: record.otp_hash
     };
+}
+
+async function completeOtpAction(verification, action) {
+    try {
+        const result = await action();
+        const consumed = await otpModel.consumeOtp(
+            verification.id,
+            verification.otpHash
+        );
+
+        if (!consumed) {
+            throw new Error('Invalid or expired OTP');
+        }
+
+        return result;
+    } catch (error) {
+        await otpModel.incrementAttempts(verification.id);
+        throw error;
+    }
 }
 
 module.exports = {
     sendOtp,
-    verifyOtp
+    verifyOtp,
+    completeOtpAction
 };

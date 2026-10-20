@@ -9,10 +9,13 @@ router.post('/register', verifyOtp('REGISTER'), authController.register);
 router.put('/reset_password', verifyOtp('RESET_PASSWORD'), authController.resetPassword);
 router.post('/login', authController.login);
 router.post('/refresh_token', authController.refreshToken);
+
 router.route('/profile')
     .get(requireLogin, authController.getProfile)
     .patch(requireLogin, authController.updateProfile)
     .delete(requireLogin, authController.deleteProfile);
+
+
 router.post('/send_otp', otpController.sendOtp);
 
 router.post('/google/login', googleAuthController.loginByGoogle);
