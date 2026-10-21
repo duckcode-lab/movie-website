@@ -1,13 +1,14 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: 'http://localhost:3000',
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
+  timeout: 10000,
 });
 
-// Tự động đính kèm accessToken vào Header nếu người dùng đã đăng nhập
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
   if (token) {

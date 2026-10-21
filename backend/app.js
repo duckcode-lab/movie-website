@@ -5,6 +5,7 @@ const cors = require('cors'); // Import CORS
 const movieRoutes = require('./routes/movieRoutes');
 const authRoutes = require('./routes/authRoutes');
 const commentRoutes = require('./routes/commentRoutes');
+const adminUserRoutes = require('./routes/adminUserRoutes');
 
 const app = express();
 const PORT = 3000;
@@ -30,13 +31,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/movies', movieRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/admin/users', adminUserRoutes);
 app.get('/', (req, res) => {
   res.json({
     message: "Movie Web API Server is running!",
     endpoints: {
       movies: "/api/movies",
       auth: "/api/auth",
-      comments: "/api/comments"
+      comments: "/api/comments",
+      adminUsers: "/api/admin/users"
     }
   });
 });
