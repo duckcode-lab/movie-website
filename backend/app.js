@@ -3,9 +3,11 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors'); // Import CORS
 const movieRoutes = require('./routes/movieRoutes');
+const genreRoutes = require('./routes/genreRoutes');
 const authRoutes = require('./routes/authRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const adminUserRoutes = require('./routes/adminUserRoutes');
+const genreModel = require('./models/genreModel');
 
 const app = express();
 const PORT = 3000;
@@ -29,6 +31,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // 2. Chuyển tất cả prefix route về chuẩn REST API
 app.use('/api/movies', movieRoutes);
+app.use('/api/genres', genreRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/admin/users', adminUserRoutes);
@@ -37,6 +40,7 @@ app.get('/', (req, res) => {
     message: "Movie Web API Server is running!",
     endpoints: {
       movies: "/api/movies",
+      genres: "/api/genres",
       auth: "/api/auth",
       comments: "/api/comments",
       adminUsers: "/api/admin/users"
@@ -52,6 +56,16 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server API đang chạy tại: http://localhost:${PORT}`);
-});
+async function startServer() {
+  try {
+    await genreModel.initialize();
+    app.listen(PORT, () => {
+      console.log(`Server API đang chạy tại: http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error('Không thể khởi tạo cơ sở dữ liệu thể loại:', error);
+    process.exitCode = 1;
+  }
+}
+
+startServer();

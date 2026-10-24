@@ -29,7 +29,7 @@ function generateRefreshToken(payload) {
         },
         process.env.JWT_REFRESH_SECRET,
         {
-            expiresIn: process.env.JWT_REFRESH_TIME
+            expiresIn: process.env.JWT_REFRESH_TIME || '30d'
         }
     );
 }

@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import Hls from 'hls.js';
+import { getGenres, updateMovie } from '../api/api';
+import SiteLayout from '../layout/SiteLayout.jsx';
 
 function Watch() {
   const { id } = useParams();
@@ -24,6 +26,11 @@ function Watch() {
   const [newComment, setNewComment] = useState('');
   const [commentSubmitting, setCommentSubmitting] = useState(false);
   const [commentError, setCommentError] = useState('');
+  const [genres, setGenres] = useState([]);
+  const [genreSelection, setGenreSelection] = useState(null);
+  const [genreSaving, setGenreSaving] = useState(false);
+  const [genreError, setGenreError] = useState('');
+  const [genreMessage, setGenreMessage] = useState('');
 
   // Lấy thông tin user an toàn
   const [user] = useState(() => {
@@ -34,6 +41,11 @@ function Watch() {
       return null;
     }
   });
+  const isAdmin = user?.role?.toLowerCase() === 'admin';
+  const movieGenreIds = (movieData?.movie?.genres || []).map((genre) => Number(genre.id));
+  const selectedGenreIds = genreSelection?.movieId === id
+    ? genreSelection.ids
+    : movieGenreIds;
 
   // Tải chi tiết phim theo ID
   useEffect(() => {
@@ -64,6 +76,49 @@ function Watch() {
     fetchMovieDetail();
     return () => { isMounted = false; };
   }, [id]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    let isMounted = true;
+    getGenres()
+      .then((res) => {
+        const result = res.data?.data?.genres;
+        if (!Array.isArray(result)) {
+          throw new Error('Dữ liệu danh sách thể loại không hợp lệ.');
+        }
+        if (isMounted) setGenres(result);
+      })
+      .catch((err) => {
+        if (isMounted) {
+          setGenreError(err.response?.data?.message || err.message || 'Không thể tải thể loại.');
+        }
+      });
+
+    return () => { isMounted = false; };
+  }, [isAdmin]);
+
+  const handleGenreSubmit = async (e) => {
+    e.preventDefault();
+    setGenreSaving(true);
+    setGenreError('');
+    setGenreMessage('');
+
+    try {
+      const res = await updateMovie(id, { genreIds: selectedGenreIds });
+      const updatedMovie = res.data?.data?.movie;
+      if (!updatedMovie) {
+        throw new Error('Không thể cập nhật thể loại cho phim.');
+      }
+      setMovieData((current) => ({ ...current, movie: updatedMovie }));
+      setGenreSelection(null);
+      setGenreMessage('Đã cập nhật thể loại cho phim.');
+    } catch (err) {
+      setGenreError(err.response?.data?.message || err.message || 'Không thể cập nhật thể loại.');
+    } finally {
+      setGenreSaving(false);
+    }
+  };
 
   // Khởi tạo HLS Player
   useEffect(() => {
@@ -206,19 +261,28 @@ function Watch() {
     }
   };
 
-  if (loading) return <div style={{ color: '#fff', textAlign: 'center', marginTop: '50px' }}>Đang tải phim...</div>;
+  if (loading) {
+    return (
+      <SiteLayout>
+        <div style={{ color: '#fff', textAlign: 'center', marginTop: '50px' }}>Đang tải phim...</div>
+      </SiteLayout>
+    );
+  }
   if (error || !movieData?.movie) {
     return (
-      <div style={{ color: '#fff', textAlign: 'center', marginTop: '50px' }}>
-        <h2>{error || 'Phim không tồn tại'}</h2>
-        <Link to="/" style={{ color: '#ff4757', marginTop: '15px', display: 'inline-block' }}>Quay lại trang chủ</Link>
-      </div>
+      <SiteLayout>
+        <div style={{ color: '#fff', textAlign: 'center', marginTop: '50px' }}>
+          <h2>{error || 'Phim không tồn tại'}</h2>
+          <Link to="/" style={{ color: '#ff4757', marginTop: '15px', display: 'inline-block' }}>Quay lại trang chủ</Link>
+        </div>
+      </SiteLayout>
     );
   }
 
   const { movie, comments } = movieData;
 
   return (
+    <SiteLayout>
     <div style={{ maxWidth: '1100px', margin: '20px auto', padding: '0 15px', color: '#fff' }}>
       
       <Link to="/" style={{ color: '#aaa', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '15px' }}>
@@ -360,6 +424,52 @@ function Watch() {
         </div>
       </div>
 
+      {isAdmin && (
+        <form
+          onSubmit={handleGenreSubmit}
+          style={{ background: '#1f1f1f', padding: '20px', borderRadius: '12px', marginBottom: '25px' }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '14px' }}>
+            <h3 style={{ margin: 0 }}>Thể loại phim</h3>
+            <Link to="/admin/genres" style={{ color: '#ff6975', fontSize: '0.9rem' }}>
+              Quản lý danh mục
+            </Link>
+          </div>
+          {genres.length > 0 ? (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px 18px' }}>
+              {genres.map((genre) => (
+                <label key={genre.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', color: '#ddd' }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedGenreIds.includes(Number(genre.id))}
+                    onChange={(event) => {
+                      setGenreMessage('');
+                      const current = selectedGenreIds;
+                      const ids = event.target.checked
+                        ? [...current, Number(genre.id)]
+                        : current.filter((genreId) => genreId !== Number(genre.id));
+                      setGenreSelection({ movieId: id, ids });
+                    }}
+                  />
+                  {genre.name}
+                </label>
+              ))}
+            </div>
+          ) : !genreError ? (
+            <p style={{ color: '#aaa' }}>Chưa có thể loại. Hãy tạo thể loại trước.</p>
+          ) : null}
+          {genreError && <p role="alert" style={{ color: '#ff6975' }}>{genreError}</p>}
+          {genreMessage && <p role="status" style={{ color: '#7bd8a7' }}>{genreMessage}</p>}
+          <button
+            type="submit"
+            disabled={genreSaving || genres.length === 0}
+            style={{ marginTop: '14px', padding: '9px 16px', border: 0, borderRadius: '7px', background: '#ff4757', color: '#fff', cursor: 'pointer' }}
+          >
+            {genreSaving ? 'Đang lưu...' : 'Lưu thể loại'}
+          </button>
+        </form>
+      )}
+
       {/* Khung Bình luận */}
       <div style={{ background: '#1f1f1f', padding: '20px', borderRadius: '12px' }}>
         <h3 style={{ marginBottom: '15px', borderBottom: '1px solid #333', paddingBottom: '8px', textAlign: 'center' }}>Bình luận</h3>
@@ -399,6 +509,7 @@ function Watch() {
       </div>
 
     </div>
+    </SiteLayout>
   );
 }
 

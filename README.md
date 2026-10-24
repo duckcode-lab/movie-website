@@ -22,10 +22,14 @@
    hiện form cho tài khoản đã đăng nhập.
 4. Sao chép `.env.example` thành `.env` và cập nhật `DB_HOST`, `DB_PORT`,
    `DB_USER`, `DB_PASSWORD`, và `DB_NAME` theo cấu hình MySQL của bạn.
-5. Cài dependencies bằng `npm install`, rồi chạy `npm run seed` để nhập danh
+5. Cấp cho tài khoản database quyền tạo bảng. Khi khởi động, backend tự tạo
+   bảng thể loại/liên kết và tách các giá trị `movie.genre` hiện có theo dấu
+   phẩy thành từng thể loại riêng. Có thể chạy `backend/sql/genres.sql` thủ công
+   thay cho bước khởi tạo tự động.
+6. Cài dependencies bằng `npm install`, rồi chạy `npm run seed` để nhập danh
    sách phim mẫu đang có trong dự án. Lệnh này giữ nguyên dữ liệu hiện tại và
    chỉ thêm các phim mẫu có ID chưa tồn tại.
-6. Khởi chạy bằng `npm start`.
+7. Khởi chạy bằng `npm start`.
 
 Ứng dụng kiểm tra kết nối MySQL trước khi bắt đầu lắng nghe cổng HTTP. Nếu kết
 nối thất bại, kiểm tra thông tin trong `.env`, quyền database, và việc đã chạy
@@ -55,6 +59,6 @@ Tạo, cập nhật hoặc xóa phim chỉ dành cho tài khoản có role `admi
 - `PUT` hoặc `PATCH /api/movies/:id` — cập nhật một phần thông tin phim.
 - `DELETE /api/movies/:id` — xóa phim.
 
-Các trường phim có thể ghi: `title`, `englishTitle`, `genre`, `cast`, `director`,
-`studio`, `country`, `bannerUrl`, `posterUrl`, `videoUrl`, `quality`, `rating`,
-`episodes`, `year`, `description`.
+Quản lý thể loại (chỉ admin) tại `/admin/genres`; trang xem phim cho phép admin
+gán nhiều thể loại cho phim. API `/api/genres` hỗ trợ CRUD và phim nhận
+`genreIds` (mảng ID thể loại) khi tạo hoặc cập nhật.

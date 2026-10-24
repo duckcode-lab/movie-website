@@ -4,6 +4,7 @@ const editableFields = new Set([
   'title',
   'englishTitle',
   'genre',
+  'genreIds',
   'cast',
   'director',
   'studio',
@@ -53,6 +54,18 @@ function validateMovie(body, requireTitle) {
   const movie = {};
   for (const field of fields) {
     const value = body[field];
+    if (field === 'genreIds') {
+      if (
+        !Array.isArray(value) ||
+        value.some((id) => !isPositiveInteger(id)) ||
+        new Set(value.map(Number)).size !== value.length
+      ) {
+        return { error: 'Danh sách thể loại không hợp lệ' };
+      }
+      movie.genreIds = value.map(Number);
+      continue;
+    }
+
     if (['year', 'rating'].includes(field) && value !== null) {
       const number = typeof value === 'string' && value.trim() ? Number(value) : value;
       if (
@@ -154,6 +167,9 @@ async function create(req, res, next) {
       data: { movie: createdMovie }
     });
   } catch (error) {
+    if (error.code === 'GENRE_IDS_NOT_FOUND') {
+      return res.status(400).json({ success: false, message: error.message });
+    }
     return next(error);
   }
 }
@@ -188,6 +204,9 @@ async function update(req, res, next) {
       data: { movie: updatedMovie }
     });
   } catch (error) {
+    if (error.code === 'GENRE_IDS_NOT_FOUND') {
+      return res.status(400).json({ success: false, message: error.message });
+    }
     return next(error);
   }
 }

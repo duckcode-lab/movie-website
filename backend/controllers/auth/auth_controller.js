@@ -1,5 +1,6 @@
 const authService = require("../../services/auth_service");
 const otpService = require("../../services/otp_service");
+const { setRefreshTokenCookie, clearRefreshTokenCookie } = require("../../utils/authCookies");
 
 const profileFields = {
     username: 'username',
@@ -145,12 +146,12 @@ async function login(req, res) {
 
         const user = await authService.login(email, password);
         const { accessToken, refreshToken } = await authService.generateTokens(user.accountId, user.role);
+        setRefreshTokenCookie(res, refreshToken);
 
         return res.status(200).json({
             success: true,
             message: "Login successfully",
             accessToken,
-            refreshToken,
             data: user
         });
     } catch (error) {
@@ -164,10 +165,7 @@ async function login(req, res) {
 // Cấp lại accessToken
 async function refreshToken(req, res) {
     try {
-        console.log("ALL COOKIES:", req.cookies);
-        
         const refreshToken = req.cookies?.refreshToken;
-        console.log("refreshToken: ", refreshToken);
         if (!refreshToken) {
             return res.status(400).json({
                 success: false,
@@ -187,6 +185,11 @@ async function refreshToken(req, res) {
             message: error.message
         });
     }
+}
+
+function logout(req, res) {
+    clearRefreshTokenCookie(res);
+    return res.status(204).end();
 }
 
 // Lấy thông tin cá nhân
@@ -282,6 +285,7 @@ module.exports = {
     resetPassword,
     login,
     refreshToken,
+    logout,
     getProfile,
     createProfile,
     updateProfile,

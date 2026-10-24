@@ -9,7 +9,7 @@ router.post('/register', verifyOtp('REGISTER'), authController.register);
 router.put('/reset_password', verifyOtp('RESET_PASSWORD'), authController.resetPassword);
 router.post('/login', authController.login);
 router.post('/refresh_token', authController.refreshToken);
-
+router.post('/logout', authController.logout);
 router.route('/profile')
     .get(requireLogin, authController.getProfile)
     .patch(requireLogin, authController.updateProfile)
