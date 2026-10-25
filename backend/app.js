@@ -1,7 +1,7 @@
 const path = require('path');
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const cors = require('cors'); // Import CORS
+const cors = require('cors'); 
 const movieRoutes = require('./routes/movieRoutes');
 const genreRoutes = require('./routes/genreRoutes');
 const authRoutes = require('./routes/authRoutes');

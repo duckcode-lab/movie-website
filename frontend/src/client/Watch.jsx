@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import Hls from 'hls.js';
-import { getGenres, updateMovie } from '../api/api';
+import { getComments, getGenres, updateMovie } from '../api/api';
 import SiteLayout from '../layout/SiteLayout.jsx';
 
 function Watch() {
@@ -23,6 +23,12 @@ function Watch() {
   const [showSettings, setShowSettings] = useState(false);
 
   // States dành cho Bình luận
+  const [commentsState, setCommentsState] = useState({
+    movieId: null,
+    comments: [],
+    loading: true,
+    error: '',
+  });
   const [newComment, setNewComment] = useState('');
   const [commentSubmitting, setCommentSubmitting] = useState(false);
   const [commentError, setCommentError] = useState('');
@@ -42,6 +48,7 @@ function Watch() {
     }
   });
   const isAdmin = user?.role?.toLowerCase() === 'admin';
+  const isAuthenticated = Boolean(user && localStorage.getItem('accessToken'));
   const movieGenreIds = (movieData?.movie?.genres || []).map((genre) => Number(genre.id));
   const selectedGenreIds = genreSelection?.movieId === id
     ? genreSelection.ids
@@ -74,6 +81,35 @@ function Watch() {
     };
 
     fetchMovieDetail();
+    return () => { isMounted = false; };
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) return undefined;
+    let isMounted = true;
+
+    getComments(id)
+      .then((res) => {
+        const result = res.data?.data;
+        if (!Array.isArray(result)) {
+          throw new Error('Dữ liệu bình luận không hợp lệ.');
+        }
+        if (isMounted) {
+          setCommentsState({ movieId: id, comments: result, loading: false, error: '' });
+        }
+      })
+      .catch((err) => {
+        console.error('Lỗi khi tải bình luận:', err);
+        if (isMounted) {
+          setCommentsState({
+            movieId: id,
+            comments: [],
+            loading: false,
+            error: err.response?.data?.message || err.message || 'Không thể tải bình luận.',
+          });
+        }
+      });
+
     return () => { isMounted = false; };
   }, [id]);
 
@@ -245,10 +281,16 @@ function Watch() {
 
       if (res.data.success) {
         setNewComment('');
-        // Reload lại danh sách phim để cập nhật bình luận mới
-        const reloadRes = await axios.get(`/api/movies/${id}`);
-        if (reloadRes.data.success) {
-          setMovieData(reloadRes.data.data);
+        try {
+          const reloadRes = await getComments(id);
+          const result = reloadRes.data?.data;
+          if (!Array.isArray(result)) {
+            throw new Error('Dữ liệu bình luận không hợp lệ.');
+          }
+          setCommentsState({ movieId: id, comments: result, loading: false, error: '' });
+        } catch (reloadError) {
+          console.error('Bình luận đã gửi nhưng không thể tải lại danh sách:', reloadError);
+          setCommentError('Đã gửi bình luận nhưng không thể tải lại danh sách. Vui lòng tải lại trang.');
         }
       }
     } catch (err) {
@@ -279,7 +321,11 @@ function Watch() {
     );
   }
 
-  const { movie, comments } = movieData;
+  const { movie } = movieData;
+  const commentsAreCurrent = commentsState.movieId === id;
+  const comments = commentsAreCurrent ? commentsState.comments : [];
+  const commentsLoading = !commentsAreCurrent || commentsState.loading;
+  const commentsError = commentsAreCurrent ? commentsState.error : '';
 
   return (
     <SiteLayout>
@@ -474,7 +520,7 @@ function Watch() {
       <div style={{ background: '#1f1f1f', padding: '20px', borderRadius: '12px' }}>
         <h3 style={{ marginBottom: '15px', borderBottom: '1px solid #333', paddingBottom: '8px', textAlign: 'center' }}>Bình luận</h3>
         
-        {user ? (
+        {isAuthenticated ? (
           <form onSubmit={handleCommentSubmit} style={{ marginBottom: '20px' }}>
             <div style={{ display: 'flex', gap: '10px' }}>
               <input
@@ -496,7 +542,11 @@ function Watch() {
           </p>
         )}
 
-        {comments && comments.length > 0 ? (
+        {commentsLoading ? (
+          <p style={{ color: '#aaa', textAlign: 'center' }} role="status">Đang tải bình luận...</p>
+        ) : commentsError ? (
+          <p style={{ color: '#ef5350', textAlign: 'center' }} role="alert">{commentsError}</p>
+        ) : comments.length > 0 ? (
           comments.map((cmt, idx) => (
             <div key={cmt.id || idx} style={{ borderBottom: '1px solid #2a2a2a', padding: '10px 0' }}>
               <strong style={{ color: '#ff4757' }}>{cmt.username || cmt.fullname || cmt.full_name || 'Người dùng'}: </strong>

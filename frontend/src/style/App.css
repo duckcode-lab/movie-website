@@ -186,9 +186,137 @@ a {
 }
 
 .movie-card {
+  position: relative;
   min-width: 0;
   color: inherit;
   text-decoration: none;
+}
+
+.movie-card:hover,
+.movie-card:focus-visible {
+  z-index: 5;
+}
+
+.movie-poster-area {
+  position: relative;
+}
+
+.movie-hover-card {
+  position: absolute;
+  z-index: 4;
+  top: 50%;
+  left: calc(100% + 10px);
+  display: flex;
+  width: 250px;
+  flex-direction: column;
+  gap: 9px;
+  padding: 16px;
+  border: 1px solid rgba(22, 25, 32, 0.12);
+  border-radius: 3px;
+  background: #f8f8fa;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.32);
+  color: #303643;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(calc(-50% + 5px));
+  transition: opacity 160ms ease, transform 160ms ease, visibility 160ms ease;
+  visibility: hidden;
+}
+
+.movie-card:hover .movie-hover-card,
+.movie-card:focus-visible .movie-hover-card {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(-50%);
+  visibility: visible;
+}
+
+.movie-card:nth-child(5n) .movie-hover-card {
+  right: calc(100% + 10px);
+  left: auto;
+}
+
+.movie-hover-card h3 {
+  overflow: hidden;
+  margin: 0;
+  color: #202631;
+  font-size: 0.95rem;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.movie-hover-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  color: #687184;
+  font-size: 0.73rem;
+  font-weight: 600;
+}
+
+.movie-hover-quality {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #ed394b;
+  color: #fff;
+  font-size: 0.66rem;
+  font-weight: 750;
+}
+
+.movie-hover-rating {
+  color: #637514;
+}
+
+.movie-hover-rating > span {
+  color: #9acb28;
+}
+
+.movie-hover-muted {
+  color: #788194;
+  font-weight: 450;
+}
+
+.movie-hover-description {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0;
+  color: #687184;
+  font-size: 0.77rem;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.movie-hover-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.movie-hover-details p {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  color: #566175;
+  font-size: 0.73rem;
+  line-height: 1.35;
+}
+
+.movie-hover-details p > span:first-child {
+  flex: 0 0 13px;
+  color: #a5cf38;
+  text-align: center;
+}
+
+.movie-hover-details p > span:last-child {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
 }
 
 .poster-wrap {
@@ -400,6 +528,16 @@ a {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 26px 16px;
   }
+
+  .movie-hover-card {
+    right: auto;
+    left: calc(100% + 10px);
+  }
+
+  .movie-card:nth-child(4n) .movie-hover-card {
+    right: calc(100% + 10px);
+    left: auto;
+  }
 }
 
 @media (max-width: 700px) {
@@ -415,6 +553,31 @@ a {
   .movie-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 24px 13px;
+  }
+
+  .movie-hover-card {
+    top: 50%;
+    right: auto;
+    left: 50%;
+    width: min(280px, calc(100vw - 32px));
+    padding: 14px;
+    transform: translate(-50%, calc(-50% + 5px));
+  }
+
+  .movie-card:hover .movie-hover-card,
+  .movie-card:focus-visible .movie-hover-card {
+    transform: translate(-50%, -50%);
+  }
+
+  .movie-card:nth-child(3n) .movie-hover-card {
+    right: 50%;
+    left: auto;
+    transform: translate(50%, calc(-50% + 5px));
+  }
+
+  .movie-card:nth-child(3n):hover .movie-hover-card,
+  .movie-card:nth-child(3n):focus-visible .movie-hover-card {
+    transform: translate(50%, -50%);
   }
 
   .poster-wrap {
@@ -452,6 +615,28 @@ a {
   .movie-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 22px 12px;
+  }
+
+  .movie-card .movie-hover-card {
+    right: auto;
+    left: 50%;
+    transform: translate(-50%, calc(-50% + 5px));
+  }
+
+  .movie-card:hover .movie-hover-card,
+  .movie-card:focus-visible .movie-hover-card {
+    transform: translate(-50%, -50%);
+  }
+
+  .movie-card:nth-child(2n) .movie-hover-card {
+    right: 50%;
+    left: auto;
+    transform: translate(50%, calc(-50% + 5px));
+  }
+
+  .movie-card:nth-child(2n):hover .movie-hover-card,
+  .movie-card:nth-child(2n):focus-visible .movie-hover-card {
+    transform: translate(50%, -50%);
   }
 }
 

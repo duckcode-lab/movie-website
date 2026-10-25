@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { logout } from '../api/api';
 import '../style/SiteLayout.css';
@@ -24,6 +24,12 @@ export default function SiteLayout({
   const [user, setUser] = useState(readStoredUser);
   const isAuthenticated = Boolean(localStorage.getItem('accessToken'));
   const isAdmin = typeof user?.role === 'string' && user.role.toLowerCase() === 'admin';
+
+  useEffect(() => {
+    const syncUser = (event) => setUser(event.detail ?? readStoredUser());
+    window.addEventListener('phimhd:user-updated', syncUser);
+    return () => window.removeEventListener('phimhd:user-updated', syncUser);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -52,16 +58,26 @@ export default function SiteLayout({
           )}
 
           <nav className="site-layout-nav" aria-label="Điều hướng chính">
-            {isAdmin && (
-              <>
-                <NavLink to="/admin/movies/new">Thêm phim</NavLink>
-                <NavLink to="/admin/genres">Thể loại</NavLink>
-              </>
-            )}
             {isAuthenticated ? (
-              <button type="button" className="site-layout-nav-button" onClick={handleLogout}>
-                Đăng xuất
-              </button>
+              <>
+                <details className="site-layout-user-menu">
+                  <summary className="site-layout-user-greeting">
+                    Xin chào, {user?.username || 'người dùng'}
+                  </summary>
+                  <div className="site-layout-user-dropdown">
+                    <NavLink to="/profile">Xem profile</NavLink>
+                    {isAdmin && (
+                      <>
+                        <NavLink to="/admin/genres">Thể loại</NavLink>
+                        <NavLink to="/admin/movies/new">Thêm movie</NavLink>
+                      </>
+                    )}
+                  </div>
+                </details>
+                <button type="button" className="site-layout-nav-button" onClick={handleLogout}>
+                  Đăng xuất
+                </button>
+              </>
             ) : (
               <>
                 <NavLink

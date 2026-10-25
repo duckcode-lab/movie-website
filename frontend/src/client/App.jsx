@@ -158,23 +158,59 @@ export default function App() {
                   onMouseEnter={() => setHoveredMovieId(movie.id)}
                   onFocus={() => setHoveredMovieId(movie.id)}
                 >
-                  <div className="poster-wrap">
-                    {movie.posterUrl ? (
-                      <img
-                        src={movie.posterUrl}
-                        alt={`Poster phim ${movie.title}`}
-                        loading="lazy"
-                        onError={(e) => {
-                          e.currentTarget.hidden = true;
-                        }}
-                      />
-                    ) : null}
-                    <div className="poster-fallback" aria-hidden="true">
-                      <span className="poster-fallback-mark">▶</span>
-                      <span>{movie.title}</span>
+                  <div className="movie-poster-area">
+                    <div className="poster-wrap">
+                      {movie.posterUrl ? (
+                        <img
+                          src={movie.posterUrl}
+                          alt={`Poster phim ${movie.title}`}
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.hidden = true;
+                          }}
+                        />
+                      ) : null}
+                      <div className="poster-fallback" aria-hidden="true">
+                        <span className="poster-fallback-mark">▶</span>
+                        <span>{movie.title}</span>
+                      </div>
+                      <span className="poster-play" aria-hidden="true">▶</span>
+                      {movie.quality && <span className="poster-quality">{movie.quality}</span>}
                     </div>
-                    <span className="poster-play" aria-hidden="true">▶</span>
-                    {movie.quality && <span className="poster-quality">{movie.quality}</span>}
+                    <div className="movie-hover-card">
+                      <h3>{movie.title}</h3>
+                      <div className="movie-hover-meta">
+                        {movie.quality && <span className="movie-hover-quality">{movie.quality}</span>}
+                        {movie.rating !== null && movie.rating !== undefined && movie.rating !== '' && (
+                          <span className="movie-hover-rating">
+                            <span aria-hidden="true">★</span> {Number(movie.rating).toFixed(1)}
+                          </span>
+                        )}
+                        {movie.episodes && <span className="movie-hover-muted">{movie.episodes}</span>}
+                        {movie.year && <span className="movie-hover-muted">{movie.year}</span>}
+                      </div>
+                      {movie.description && <p className="movie-hover-description">{movie.description}</p>}
+                      <div className="movie-hover-details">
+                        {movie.studio && (
+                          <p>
+                            <span aria-hidden="true">▣</span>
+                            <span>{movie.studio}</span>
+                          </p>
+                        )}
+                        {movie.genre && (
+                          <p>
+                            <span aria-hidden="true">▤</span>
+                            <span>{movie.genre}</span>
+                          </p>
+                        )}
+                        {movie.cast && (
+                          <p>
+                            <span aria-hidden="true">♟</span>
+                            <span>{movie.cast}</span>
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                   <div className="movie-info">
                     <h3>{movie.title}</h3>

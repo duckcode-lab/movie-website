@@ -112,6 +112,81 @@
   color: #fff;
 }
 
+.site-layout-user-menu {
+  position: relative;
+}
+
+.site-layout-user-greeting {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: #d8d8de;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 650;
+  list-style: none;
+  white-space: nowrap;
+}
+
+.site-layout-user-greeting::-webkit-details-marker {
+  display: none;
+}
+
+.site-layout-user-greeting::after {
+  width: 7px;
+  height: 7px;
+  transform: translateY(-2px) rotate(45deg);
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  content: "";
+  transition: transform 160ms ease;
+}
+
+.site-layout-user-menu[open] .site-layout-user-greeting::after {
+  transform: translateY(2px) rotate(225deg);
+}
+
+.site-layout-user-menu[open] .site-layout-user-greeting,
+.site-layout-user-greeting:hover,
+.site-layout-user-greeting:focus-visible {
+  border-color: rgba(255, 255, 255, 0.13);
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+}
+
+.site-layout-user-dropdown {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 9px);
+  right: 0;
+  display: flex;
+  min-width: 170px;
+  flex-direction: column;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: #17181e;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
+}
+
+.site-layout-nav .site-layout-user-dropdown a {
+  min-height: 38px;
+  justify-content: flex-start;
+  border: 0;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.site-layout-nav .site-layout-user-dropdown a:hover,
+.site-layout-nav .site-layout-user-dropdown a[aria-current="page"] {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
 .site-layout-main {
   position: relative;
   z-index: 1;
@@ -189,9 +264,16 @@
   }
 
   .site-layout-nav a,
-  .site-layout-nav-button {
+  .site-layout-nav-button,
+  .site-layout-user-greeting {
     padding-inline: 9px;
     font-size: 0.76rem;
+  }
+
+  .site-layout-nav .site-layout-user-dropdown a {
+    min-height: 38px;
+    padding-inline: 10px;
+    font-size: 0.8rem;
   }
 }
 
@@ -223,10 +305,22 @@
   }
 
   .site-layout-nav a,
-  .site-layout-nav-button {
+  .site-layout-nav-button,
+  .site-layout-user-greeting {
     min-height: 34px;
     padding-inline: 7px;
     font-size: 0.7rem;
+  }
+
+  .site-layout-user-dropdown {
+    top: calc(100% + 6px);
+    min-width: 150px;
+  }
+
+  .site-layout-nav .site-layout-user-dropdown a {
+    min-height: 36px;
+    padding-inline: 10px;
+    font-size: 0.78rem;
   }
 
   .site-layout-page-heading {

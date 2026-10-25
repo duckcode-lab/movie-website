@@ -51,6 +51,9 @@ minh OTP). Tài khoản đã đăng nhập chưa có hồ sơ có thể tạo b�
 - `DELETE /api/auth/profile` — xóa vĩnh viễn tài khoản, hồ sơ, bình luận, OTP
   và liên kết đăng nhập của tài khoản. Client nên xóa token đã lưu sau khi nhận
   phản hồi thành công.
+- `PUT /api/auth/change_password` — yêu cầu access token cùng `currentPassword`
+  và `newPassword`; giao diện yêu cầu nhập lại mật khẩu mới để xác nhận trước
+  khi gửi yêu cầu.
 
 Đọc và tìm kiếm phim vẫn công khai qua `GET /api/movies` và `GET /api/movies/:id`.
 Tạo, cập nhật hoặc xóa phim chỉ dành cho tài khoản có role `admin`:

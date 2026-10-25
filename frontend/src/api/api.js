@@ -31,6 +31,7 @@ export const createProfile = (data) => api.post('/auth/profile', data);
 export const updateProfile = (data) => api.patch('/auth/profile', data);
 export const deleteProfile = () => api.delete('/auth/profile');
 export const resetPassword = (data) => api.put('/auth/reset_password', data);
+export const changePassword = (data) => api.put('/auth/change_password', data);
 
 // --- MOVIE API ---
 export const getMovies = (query = '') => api.get('/movies', {

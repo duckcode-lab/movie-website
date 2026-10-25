@@ -66,6 +66,26 @@ async function changePassword(email, newPassword) {
     return { email };
 }
 
+async function changeAuthenticatedPassword(accountId, currentPassword, newPassword) {
+    const existingAccount = await account.findById(accountId);
+    if (!existingAccount) {
+        throw new Error('Account does not exist');
+    }
+
+    const isMatch = await comparePassword(currentPassword, existingAccount.password_hash);
+    if (!isMatch) {
+        throw new Error('Current password is incorrect');
+    }
+
+    const passwordHash = await hashPassword(newPassword);
+    const updated = await account.updatePassword(accountId, passwordHash);
+    if (!updated) {
+        throw new Error('Unable to update password');
+    }
+
+    return { success: true };
+}
+
 async function login(email, password) {
     const exitsAccount = await account.findByEmail(email);
     if(!exitsAccount) {
@@ -220,6 +240,7 @@ async function deleteProfile(accountId) {
 module.exports = {
     register,
     changePassword,
+    changeAuthenticatedPassword,
     login,
     generateTokens,
     refreshToken,

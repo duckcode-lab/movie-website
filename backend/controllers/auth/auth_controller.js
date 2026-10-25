@@ -132,6 +132,37 @@ async function resetPassword(req, res) {
     }
 }
 
+async function changeAuthenticatedPassword(req, res, next) {
+    const { currentPassword, newPassword } = req.body || {};
+    if (
+        typeof currentPassword !== 'string' ||
+        !currentPassword ||
+        typeof newPassword !== 'string' ||
+        !newPassword
+    ) {
+        return res.status(400).json({
+            success: false,
+            message: 'Mật khẩu hiện tại và mật khẩu mới là bắt buộc'
+        });
+    }
+
+    try {
+        await authService.changeAuthenticatedPassword(req.user.id, currentPassword, newPassword);
+        return res.json({
+            success: true,
+            message: 'Đã đổi mật khẩu'
+        });
+    } catch (error) {
+        if (error.message === 'Current password is incorrect') {
+            return res.status(400).json({
+                success: false,
+                message: 'Mật khẩu hiện tại không chính xác'
+            });
+        }
+        return next(error);
+    }
+}
+
 // Đăng nhập
 async function login(req, res) {
     try {
@@ -283,6 +314,7 @@ async function deleteProfile(req, res, next) {
 module.exports = {
     register,
     resetPassword,
+    changeAuthenticatedPassword,
     login,
     refreshToken,
     logout,
