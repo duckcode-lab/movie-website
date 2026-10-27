@@ -1,4 +1,4 @@
-import api from '../utils/api';
+import api from '../../utils/api';
 
 export const adminUserRepository = {
   async getAll({ page = 1, limit = 20, q, role } = {}) {
