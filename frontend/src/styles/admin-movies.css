@@ -1,0 +1,343 @@
+.admin-movies-page {
+  color: #e7eaf0;
+}
+
+.admin-movies-heading,
+.admin-movies-toolbar,
+.admin-movie-card,
+.admin-movie-form-heading,
+.admin-movie-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.admin-movies-heading {
+  margin-bottom: 24px;
+}
+
+.admin-movies-heading h1,
+.admin-movie-info h2 {
+  margin: 0;
+}
+
+.admin-movies-heading h1 {
+  color: #f5f6f8;
+  font-size: 1.6rem;
+}
+
+.admin-movies-heading p {
+  margin: 6px 0 0;
+  color: #929baa;
+  font-size: 0.9rem;
+}
+
+.admin-movies-primary-button,
+.admin-movies-secondary-button,
+.admin-movies-delete-button {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 13px;
+  border: 1px solid #19724b;
+  border-radius: 6px;
+  background: #123c2b;
+  color: #a6f0c8;
+  cursor: pointer;
+  font: inherit;
+}
+
+.admin-movies-primary-button:hover:not(:disabled) {
+  background: #17613e;
+}
+
+.admin-movies-secondary-button {
+  border-color: #303846;
+  background: #171c24;
+  color: #c7ced8;
+}
+
+.admin-movies-delete-button {
+  border-color: #81333a;
+  background: #451f24;
+  color: #ffb6bb;
+}
+
+.admin-movies-primary-button:disabled,
+.admin-movies-secondary-button:disabled,
+.admin-movies-delete-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.admin-movies-toolbar {
+  margin-bottom: 14px;
+  color: #929baa;
+  font-size: 0.9rem;
+}
+
+.admin-movies-toolbar input,
+.admin-movie-form input:not([type="checkbox"]),
+.admin-movie-form textarea {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid #303846;
+  border-radius: 7px;
+  outline: none;
+  background: #11161d;
+  color: #e7eaf0;
+  font: inherit;
+}
+
+.admin-movies-toolbar input {
+  width: min(360px, 55vw);
+}
+
+.admin-movies-toolbar input:focus,
+.admin-movie-form input:focus,
+.admin-movie-form textarea:focus {
+  border-color: #ed394b;
+}
+
+.admin-movies-message {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+}
+
+.admin-movies-message.is-error {
+  color: #ff9da4;
+}
+
+.admin-movies-message.is-success {
+  color: #8ee0ae;
+}
+
+.admin-movies-message button {
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.admin-movies-list {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-movie-card {
+  justify-content: flex-start;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #242c37;
+  border-radius: 9px;
+  background: #11161d;
+}
+
+.admin-movie-poster {
+  display: grid;
+  width: 68px;
+  height: 94px;
+  flex: 0 0 68px;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 5px;
+  background: #202630;
+  color: #929baa;
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.admin-movie-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-movie-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-movie-info h2 {
+  overflow: hidden;
+  color: #f5f6f8;
+  font-size: 1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-movie-info p {
+  margin: 8px 0 0;
+  color: #aeb7c4;
+  font-size: 0.85rem;
+}
+
+.admin-movie-info strong {
+  color: #d7dce4;
+}
+
+.admin-movie-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-movies-empty {
+  padding: 40px 16px;
+  border: 1px dashed #303846;
+  border-radius: 9px;
+  color: #929baa;
+  text-align: center;
+}
+
+.admin-movie-form {
+  margin-bottom: 18px;
+  padding: 18px;
+  border: 1px solid #303846;
+  border-radius: 9px;
+  background: #11161d;
+}
+
+.admin-movie-form-heading {
+  margin-bottom: 16px;
+}
+
+.admin-movie-form-heading h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.admin-movie-form-heading > button {
+  border: 0;
+  background: none;
+  color: #aeb7c4;
+  cursor: pointer;
+  font-size: 1.5rem;
+}
+
+.admin-movie-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.admin-movie-form-grid > label {
+  display: grid;
+  gap: 7px;
+  color: #c7ced8;
+  font-size: 0.85rem;
+}
+
+.admin-movie-form-grid > label b {
+  color: #ff6975;
+}
+
+.admin-movie-form-grid fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: #c7ced8;
+  font-size: 0.85rem;
+}
+
+.admin-movie-form-grid textarea {
+  min-height: 100px;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.admin-movie-episodes-field {
+  grid-column: span 1;
+}
+
+.admin-movie-episodes-inputs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  margin-top: 7px;
+  text-align: center;
+}
+
+.admin-movie-episodes-inputs input {
+  width: 100%;
+}
+
+.admin-movie-description-field {
+  grid-column: 1 / -1;
+}
+
+.admin-movie-genre-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 9px;
+}
+
+.admin-movie-genre-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-movie-genre-options input {
+  accent-color: #ed394b;
+}
+
+.admin-movie-form-grid fieldset p {
+  color: #929baa;
+}
+
+.admin-movie-form-grid fieldset a {
+  color: #ff737e;
+}
+
+.admin-movie-form-actions {
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+@media (max-width: 700px) {
+  .admin-movies-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-movie-card {
+    flex-wrap: wrap;
+  }
+
+  .admin-movie-info {
+    flex-basis: calc(100% - 100px);
+  }
+
+  .admin-movie-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 520px) {
+  .admin-movies-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-movies-toolbar input {
+    width: 100%;
+  }
+
+  .admin-movies-toolbar label {
+    width: 100%;
+  }
+
+  .admin-movie-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

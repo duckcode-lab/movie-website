@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { createGenre, deleteGenre, getGenres, updateGenre } from '../api/api';
-import SiteLayout from '../layout/SiteLayout.jsx';
 import '../style/Genres.css';
 
 export default function Genres() {
@@ -121,25 +120,25 @@ export default function Genres() {
   };
 
   return (
-    <SiteLayout
-      title="Quản lý thể loại"
-      description="Tạo và cập nhật thể loại dùng chung cho danh sách phim."
-    >
-      <div className="genre-admin-page">
-        {deleteError && (
-          <div className="genre-delete-toast" role="alert">
-            <span className="genre-delete-toast-icon" aria-hidden="true">!</span>
-            <span>{deleteError}</span>
-            <button
-              type="button"
-              aria-label="Đóng thông báo"
-              onClick={() => setDeleteError('')}
-            >
-              ×
-            </button>
-          </div>
-        )}
-        <section className="genre-admin-card" aria-labelledby="genre-form-title">
+    <div className="genre-admin-page">
+      <header className="genre-admin-heading">
+        <h1>Quản lý thể loại</h1>
+        <p>Tạo và cập nhật thể loại dùng chung cho danh sách phim.</p>
+      </header>
+      {deleteError && (
+        <div className="genre-delete-toast" role="alert">
+          <span className="genre-delete-toast-icon" aria-hidden="true">!</span>
+          <span>{deleteError}</span>
+          <button
+            type="button"
+            aria-label="Đóng thông báo"
+            onClick={() => setDeleteError('')}
+          >
+            ×
+          </button>
+        </div>
+      )}
+      <section className="genre-admin-card" aria-labelledby="genre-form-title">
         <h2 id="genre-form-title">{editingId === null ? 'Thêm thể loại' : 'Sửa thể loại'}</h2>
         <form className="genre-admin-form" onSubmit={handleSubmit}>
           <label htmlFor="genre-name">Tên thể loại</label>
@@ -175,9 +174,9 @@ export default function Genres() {
 
         {error && <p className="genre-admin-alert" role="alert">{error}</p>}
         {message && <p className="genre-admin-success" role="status">{message}</p>}
-        </section>
+      </section>
 
-        <section className="genre-admin-card" aria-labelledby="genre-list-title">
+      <section className="genre-admin-card" aria-labelledby="genre-list-title">
         <div className="genre-admin-list-heading">
           <h2 id="genre-list-title">Danh sách thể loại</h2>
           {!loading && !error && <span>{genres.length} thể loại</span>}
@@ -221,8 +220,7 @@ export default function Genres() {
             ))}
           </ul>
         )}
-        </section>
-      </div>
-    </SiteLayout>
+      </section>
+    </div>
   );
 }

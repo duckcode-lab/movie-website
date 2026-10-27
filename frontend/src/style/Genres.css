@@ -4,6 +4,21 @@
   color: inherit;
 }
 
+.genre-admin-heading {
+  margin-bottom: 24px;
+}
+
+.genre-admin-heading h1 {
+  margin: 0;
+  font-size: clamp(1.7rem, 4vw, 2.3rem);
+  letter-spacing: -0.04em;
+}
+
+.genre-admin-heading p {
+  margin: 9px 0 0;
+  color: #a7a8b1;
+}
+
 .genre-delete-toast {
   position: fixed;
   z-index: 20;

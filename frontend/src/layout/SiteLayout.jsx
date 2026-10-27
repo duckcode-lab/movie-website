@@ -67,10 +67,7 @@ export default function SiteLayout({
                   <div className="site-layout-user-dropdown">
                     <NavLink to="/profile">Xem profile</NavLink>
                     {isAdmin && (
-                      <>
-                        <NavLink to="/admin/genres">Thể loại</NavLink>
-                        <NavLink to="/admin/movies/new">Thêm movie</NavLink>
-                      </>
+                      <NavLink to="/admin/dashboard">Trang quản lý</NavLink>
                     )}
                   </div>
                 </details>

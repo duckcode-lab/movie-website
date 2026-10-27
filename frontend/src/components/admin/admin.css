@@ -8,17 +8,17 @@ body:has(.admin-app) #root {
 }
 
 .admin-app {
-  min-height: 100vh;
+  min-height: calc(100vh - 130px);
   background: #0b0e13;
 }
 
-.admin-app .navbar {
-  min-height: 64px;
+.site-layout-main.admin-layout-main {
+  padding: 0;
 }
 
 .admin-body {
   display: flex;
-  min-height: calc(100vh - 64px);
+  min-height: inherit;
 }
 
 .admin-sidebar {
