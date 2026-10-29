@@ -82,11 +82,10 @@ function Auth() {
           password: form.password
         });
 
-        const { accessToken, refreshToken, data: userData } = response.data;
+        const { accessToken, data: userData } = response.data;
 
         // Lưu Token và Thông tin User vào LocalStorage
         if (accessToken) localStorage.setItem('accessToken', accessToken);
-        if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
         if (userData) localStorage.setItem('user', JSON.stringify(userData));
 
         setIsError(false);

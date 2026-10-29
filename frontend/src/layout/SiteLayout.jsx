@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { logout } from '../api/api';
+import { clearRefreshTokenCookie } from '../api/refreshTokenCookie.js';
 import '../style/SiteLayout.css';
 
 function readStoredUser() {
@@ -39,6 +40,7 @@ export default function SiteLayout({
     } finally {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('user');
+      clearRefreshTokenCookie();
       setUser(null);
       navigate('/');
     }

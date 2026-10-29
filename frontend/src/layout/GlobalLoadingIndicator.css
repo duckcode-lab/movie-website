@@ -1,0 +1,68 @@
+.global-loading-indicator {
+  position: fixed;
+  z-index: 10000;
+  inset: 0 0 auto;
+  height: 3px;
+  pointer-events: none;
+}
+
+.global-loading-indicator__bar {
+  display: block;
+  width: 35%;
+  height: 100%;
+  transform: translateX(-110%);
+  background: linear-gradient(90deg, transparent, #ff4657 35%, #ff8a63 75%, transparent);
+  animation: global-loading-progress 1.15s ease-in-out infinite;
+}
+
+.global-loading-indicator__message {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 14px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(22, 23, 29, 0.96);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
+  color: #f5f5f7;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.global-loading-indicator__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #ff5260;
+  border-radius: 50%;
+  animation: global-loading-spin 700ms linear infinite;
+}
+
+@keyframes global-loading-progress {
+  to {
+    transform: translateX(310%);
+  }
+}
+
+@keyframes global-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .global-loading-indicator__bar {
+    width: 100%;
+    transform: none;
+    animation: none;
+    background: #ff5260;
+  }
+
+  .global-loading-indicator__spinner {
+    animation-duration: 1.5s;
+  }
+}

@@ -24,6 +24,7 @@ api.interceptors.request.use(
 export const sendOtp = (data) => api.post('/auth/send_otp', data);
 export const register = (data) => api.post('/auth/register', data);
 export const login = (data) => api.post('/auth/login', data);
+export const refreshAccessToken = () => api.post('/auth/refresh_token');
 export const logout = () => api.post('/auth/logout');
 export const loginGoogle = (data) => api.post('/auth/google/login', data);
 export const getProfile = () => api.get('/auth/profile');

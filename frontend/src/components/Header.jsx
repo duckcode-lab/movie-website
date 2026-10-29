@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { clearRefreshTokenCookie } from '../api/refreshTokenCookie.js';
 
 function readStoredUser() {
   const storedUser = localStorage.getItem('user');
@@ -28,8 +29,8 @@ function Header({
 
   function handleLogout() {
     localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
+    clearRefreshTokenCookie();
     setUser(null);
     navigate('/');
   }

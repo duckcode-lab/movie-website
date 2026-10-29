@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { login, register, sendOtp } from '../api/api';
+import { login, loginGoogle, register, sendOtp } from '../api/api';
+import { saveRefreshTokenCookie } from '../api/refreshTokenCookie.js';
+import GoogleSignInButton from '../components/GoogleSignInButton.jsx';
+import PasswordField from '../components/PasswordField.jsx';
 import SiteLayout from '../layout/SiteLayout.jsx';
 import '../style/Auth.css';
 
@@ -17,6 +20,45 @@ export default function Auth({ onLoginSuccess }) {
   const [messageType, setMessageType] = useState('error');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  const handleGoogleCredential = useCallback(async (credential) => {
+    if (!credential) {
+      setMessage('Không nhận được thông tin xác thực từ Google.');
+      setMessageType('error');
+      return;
+    }
+
+    setIsGoogleLoading(true);
+    setMessage('');
+
+    try {
+      const response = await loginGoogle({ credential });
+      const accessToken = response.data?.accessToken;
+      const user = response.data?.data;
+
+      if (!accessToken || !user || typeof user !== 'object') {
+        throw new Error('Backend không trả về thông tin đăng nhập hợp lệ.');
+      }
+
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('user', JSON.stringify(user));
+      window.dispatchEvent(new CustomEvent('phimhd:user-updated', { detail: user }));
+
+      const destination =
+        String(user.role || '').toLowerCase() === 'admin' ? '/admin/dashboard' : '/';
+      navigate(destination, { replace: true });
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message ||
+        error.message ||
+        'Đăng nhập bằng Google thất bại. Vui lòng thử lại.',
+      );
+      setMessageType('error');
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  }, [navigate]);
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -31,6 +73,9 @@ export default function Auth({ onLoginSuccess }) {
         }
 
         localStorage.setItem('accessToken', res.data.accessToken);
+        if (res.data.refreshToken) {
+          saveRefreshTokenCookie(res.data.refreshToken);
+        }
         localStorage.setItem('user', JSON.stringify(res.data.data));
         if (onLoginSuccess) onLoginSuccess(res.data.data);
         navigate('/');
@@ -77,7 +122,9 @@ export default function Auth({ onLoginSuccess }) {
     <div className="auth-page">
       <section className="auth-card" aria-labelledby="auth-title">
         <p className="auth-kicker">THẾ GIỚI PHIM TRONG TẦM TAY</p>
-        <h1 id="auth-title">{isLogin ? 'Chào mừng trở lại' : 'Tạo tài khoản mới'}</h1>
+        <h1 id="auth-title">
+          {isLogin ? 'Chào mừng trở lại' : 'Tạo tài khoản mới'}
+        </h1>
         <p className="auth-subtitle">
           {isLogin
             ? 'Đăng nhập để tiếp tục khám phá những bộ phim yêu thích.'
@@ -148,10 +195,9 @@ export default function Auth({ onLoginSuccess }) {
             required
           />
 
-          <label htmlFor="auth-password">Mật khẩu</label>
-          <input
+          <PasswordField
             id="auth-password"
-            type="password"
+            label="Mật khẩu"
             autoComplete={isLogin ? 'current-password' : 'new-password'}
             placeholder="Nhập mật khẩu"
             value={password}
@@ -173,11 +219,17 @@ export default function Auth({ onLoginSuccess }) {
                   onChange={(e) => setOtp(e.target.value)}
                   required
                 />
-                <button type="button" onClick={handleSendOtp} disabled={isSendingOtp}>
+                <button type="button" onClick={() => handleSendOtp()} disabled={isSendingOtp}>
                   {isSendingOtp ? 'Đang gửi...' : 'Lấy mã'}
                 </button>
               </div>
             </>
+          )}
+
+          {isLogin && (
+            <Link className="auth-forgot-action" to="/forgot-password" state={{ email }}>
+              Quên mật khẩu?
+            </Link>
           )}
 
           <button className="auth-submit" type="submit" disabled={isSubmitting}>
@@ -188,6 +240,18 @@ export default function Auth({ onLoginSuccess }) {
                 : 'Tạo tài khoản'}
           </button>
         </form>
+
+        {isLogin && (
+          <div className="auth-google-section">
+            <div className="auth-divider" aria-hidden="true">
+              <span>hoặc tiếp tục với</span>
+            </div>
+            <GoogleSignInButton
+              onCredential={handleGoogleCredential}
+              disabled={isSubmitting || isGoogleLoading}
+            />
+          </div>
+        )}
 
         <p className="auth-footer">
           Bằng việc tiếp tục, bạn đồng ý với các điều khoản sử dụng của PhimHD.

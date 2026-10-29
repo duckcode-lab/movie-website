@@ -7,6 +7,7 @@ import {
   logout,
   updateProfile,
 } from '../api/api';
+import { clearRefreshTokenCookie } from '../api/refreshTokenCookie.js';
 import SiteLayout from '../layout/SiteLayout.jsx';
 import '../style/Profile.css';
 
@@ -149,6 +150,7 @@ export default function Profile() {
       }
       localStorage.removeItem('accessToken');
       localStorage.removeItem('user');
+      clearRefreshTokenCookie();
       window.dispatchEvent(new CustomEvent('phimhd:user-updated', { detail: null }));
       navigate('/', { replace: true });
     } catch (error) {

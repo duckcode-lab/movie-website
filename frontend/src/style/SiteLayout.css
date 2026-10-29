@@ -201,6 +201,12 @@
   padding: 0;
 }
 
+.site-layout-main.home-layout-main {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
 .site-layout-page-heading {
   width: min(100% - 40px, 980px);
   margin: 0 auto 24px;

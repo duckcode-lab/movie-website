@@ -97,7 +97,7 @@ export default function App() {
   );
 
   return (
-    <SiteLayout headerContent={searchForm}>
+    <SiteLayout headerContent={searchForm} mainClassName="home-layout-main">
       <div className="app-container">
       <div className="dynamic-background" aria-hidden="true">
         {hoveredMovie?.bannerUrl || hoveredMovie?.posterUrl ? (
