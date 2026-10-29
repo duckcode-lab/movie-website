@@ -76,18 +76,11 @@ async function search(query) {
     db,
     `WHERE m.title LIKE ?
        OR m.englishTitle LIKE ?
-       OR (
-         m.genre LIKE ?
-         AND NOT EXISTS (
-           SELECT 1 FROM movie_genre legacy_mg WHERE legacy_mg.movie_id = m.id
-         )
-       )
-       OR g.name LIKE ?
        OR m.cast LIKE ?
        OR m.director LIKE ?
        OR m.studio LIKE ?
        OR m.country LIKE ?`,
-    Array(8).fill(keyword),
+    Array(6).fill(keyword),
     'ORDER BY m.id DESC'
   );
 }
